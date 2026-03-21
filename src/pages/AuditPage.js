@@ -23,9 +23,6 @@ const TABS = [
   { key:"overview",  label:"Overview" },
   { key:"spark",     label:"Spark",   ac:"active-spark" },
   { key:"systems",   label:"SYSTEMS", ac:"active-systems" },
-  { key:"air",       label:"AIR",     ac:"active-air" },
-  { key:"ashes",     label:"ASHES",   ac:"active-air" },
-  { key:"summary",   label:"Summary", ac:"active-spark" },
   { key:"rhythm",    label:"Rhythm",  ac:"active-systems" },
 ];
 
