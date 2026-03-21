@@ -3,12 +3,12 @@ import { useState } from "react";
 const NAV = [
   { section:"Overview", items:[{ key:"dashboard", label:"Dashboard" }]},
   { section:"The Method", items:[
-    { key:"spark",   label:"Spark" },
+    { key:"spark",   label:"SPARK" },
     { key:"systems", label:"SYSTEMS" },
     { key:"air",     label:"AIR" },
   ]},
   { section:"Tools", items:[
-    { key:"audit",       label:"Audit" },
+    { key:"tend",        label:"Tend" },
     { key:"coach",       label:"Coach" },
     { key:"notes",       label:"Notes" },
     { key:"history",     label:"History" },
