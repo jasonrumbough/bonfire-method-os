@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../utils/supabase";
 
@@ -12,6 +13,33 @@ const RESOURCE_TYPES = [
 function todayKey() { return new Date().toISOString().split('T')[0]; }
 
 export default function ResourcesPage({ data }) {
+
+  const [playlist, setPlaylist] = React.useState(null);
+  const [playlistLoading, setPlaylistLoading] = React.useState(false);
+
+  const generatePlaylist = async () => {
+    setPlaylistLoading(true);
+    try {
+      const scores = data.auditScores || {};
+      const sparkStatement = data.sparkStatement || "";
+      const overall = Object.values(scores).filter(v=>v>0).reduce((a,b)=>a+b,0) / (Object.values(scores).filter(v=>v>0).length||1);
+      const prompt = 'Based on this leader\'s current state, suggest a Spotify focus playlist. ' +
+        'Spark statement: "' + sparkStatement + '". ' +
+        'Overall score: ' + overall.toFixed(1) + '/5. ' +
+        'Respond ONLY with valid JSON (no markdown): { "rationale": "1-2 sentence explanation of why these tracks fit this leader right now", "searchQuery": "spotify search string for this vibe", "tracks": [ { "title": "Song Title", "artist": "Artist Name", "emoji": "🔥", "vibe": "one word vibe" } ] } with exactly 6 tracks.';
+      const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+      });
+      const apiData = await apiRes.json();
+      const text = apiData.content?.[0]?.text || "";
+      const clean = text.replace(/```json|```/g,"").trim();
+      setPlaylist(JSON.parse(clean));
+    } catch(e) { console.error(e); }
+    setPlaylistLoading(false);
+  };
+
   const [resources, setResources] = useState(null);
   const [scripture, setScripture] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -192,6 +220,54 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", color:"var(--cream)", marginBottom:4 }}>
             📚 Daily Resources
           </div>
+
+      {/* Spotify Playlist */}
+      <div className="card" style={{marginBottom:"1rem"}}>
+        <div className="card-header">
+          <div>
+            <div className="card-title">🎵 Your Focus Playlist</div>
+            <div className="card-sub" style={{marginTop:2}}>Curated by AI based on your current scores and season</div>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={generatePlaylist} disabled={playlistLoading}
+            style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
+            {playlistLoading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↺ Refresh"}
+          </button>
+        </div>
+        {playlist ? (
+          <div>
+            <div style={{fontSize:"0.85rem",color:"var(--pale)",lineHeight:1.7,marginBottom:12,padding:"10px 14px",background:"var(--ash)",borderRadius:8,fontStyle:"italic"}}>
+              "{playlist.rationale}"
+            </div>
+            <div style={{display:"grid",gap:6}}>
+              {(playlist.tracks||[]).map((t,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--ash)",borderRadius:8}}>
+                  <span style={{fontSize:"1rem",minWidth:20,textAlign:"center"}}>{t.emoji||"🎵"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:"0.82rem",color:"var(--pale)",fontWeight:500}}>{t.title}</div>
+                    <div style={{fontSize:"0.72rem",color:"var(--smoke)"}}>{t.artist}</div>
+                  </div>
+                  <div style={{fontSize:"0.68rem",color:"var(--ember)",padding:"2px 8px",background:"rgba(232,89,60,0.1)",borderRadius:12}}>{t.vibe}</div>
+                </div>
+              ))}
+            </div>
+            {playlist.searchQuery && (
+              <div style={{marginTop:10,textAlign:"center"}}>
+                <a href={"https://open.spotify.com/search/"+encodeURIComponent(playlist.searchQuery)} target="_blank" rel="noreferrer"
+                  style={{fontSize:"0.78rem",color:"#1DB954",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}>
+                  <span style={{fontSize:"1rem"}}>🎧</span> Open in Spotify
+                </a>
+              </div>
+            )}
+          </div>
+        ) : playlistLoading ? (
+          <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>Curating your playlist...</div>
+        ) : (
+          <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>
+            No playlist yet — click Refresh to generate one based on your current scores.
+          </div>
+        )}
+      </div>
+
           <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>
             Curated daily for your biggest growth areas
             {lastGenerated && <span> · {lastGenerated}</span>}
