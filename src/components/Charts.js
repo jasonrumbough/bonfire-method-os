@@ -1,0 +1,56 @@
+import { useEffect, useRef } from "react";
+import { Chart, RadarController, LineController, BarController,
+  CategoryScale, LinearScale, RadialLinearScale, PointElement,
+  LineElement, BarElement, Filler, Tooltip } from "chart.js";
+
+Chart.register(RadarController, LineController, BarController,
+  CategoryScale, LinearScale, RadialLinearScale, PointElement,
+  LineElement, BarElement, Filler, Tooltip);
+
+export function RadarChart({ scores, labels }) {
+  const ref = useRef(); const chart = useRef();
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chart.current) chart.current.destroy();
+    chart.current = new Chart(ref.current, {
+      type: "radar",
+      data: { labels, datasets: [{ label: "Score", data: scores,
+        backgroundColor: "rgba(232,89,60,0.12)", borderColor: "#E8593C",
+        pointBackgroundColor: "#E8593C", pointRadius: 4, borderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, color: "#6B5E52", font: { size: 10 } },
+          grid: { color: "rgba(107,94,82,0.3)" },
+          pointLabels: { color: "#B09E92", font: { size: 11 } },
+          angleLines: { color: "rgba(107,94,82,0.2)" } } },
+        plugins: { legend: { display: false } } }
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, [JSON.stringify(scores), JSON.stringify(labels)]);
+  return <canvas ref={ref} />;
+}
+
+export function LineChart({ data, labels, label = "Score", color = "#E8593C" }) {
+  const ref = useRef(); const chart = useRef();
+  const hexToRgba = (hex, alpha) => {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
+  };
+  useEffect(() => {
+    if (!ref.current || !data.length) return;
+    if (chart.current) chart.current.destroy();
+    chart.current = new Chart(ref.current, {
+      type: "line",
+      data: { labels, datasets: [{ label, data, borderColor: color,
+        backgroundColor: hexToRgba(color, 0.08), fill: true, tension: 0.4,
+        pointRadius: 3, pointBackgroundColor: color, borderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { ticks: { color: "#6B5E52", font: { size: 10 } }, grid: { color: "rgba(107,94,82,0.15)" } },
+          x: { ticks: { color: "#6B5E52", font: { size: 9 }, maxRotation: 45 }, grid: { color: "rgba(107,94,82,0.1)" } }
+        },
+        plugins: { legend: { display: false } } }
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, [JSON.stringify(data), JSON.stringify(labels), color]);
+  return <canvas ref={ref} />;
+}

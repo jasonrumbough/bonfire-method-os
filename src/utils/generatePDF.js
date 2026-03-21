@@ -1,0 +1,461 @@
+// generatePDF.js + generateExcel.js — Bonfire Method export utilities
+
+const SCORE_LABELS = {
+  sp1:"Passion Clarity",sp2:"Work Alignment",sp3:"Pattern Recognition",
+  sp4:"Skill Development",sp5:"Financial Provision",sp6:"Personality Alignment",
+  sy1:"Structure",sy2:"Yield",sy3:"Support",sy4:"Time",
+  sy5:"Energy",sy6:"Money",sy7:"Story",
+  ai1:"Audit Rhythm",ai2:"Intentional Investment",ai3:"Reflection Practice",
+  ai4:"Drift Prevention",ai5:"Sustainable Growth",
+};
+const PILLAR_GROUPS = [
+  { label:"SPARK - Six P's", keys:["sp1","sp2","sp3","sp4","sp5","sp6"], color:[232,89,60] },
+  { label:"S.Y.S.T.E.M.S.",  keys:["sy1","sy2","sy3","sy4","sy5","sy6","sy7"], color:[201,146,47] },
+  { label:"AIR Rhythm",       keys:["ai1","ai2","ai3","ai4","ai5"], color:[42,157,143] },
+];
+
+function pillarAvg(keys, scores) {
+  const vals = keys.map(k => Number(scores?.[k])||0).filter(v=>v>0);
+  return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : 0;
+}
+function stripBold(text) { return (text||"").replace(/\*\*(.*?)\*\*/g,"$1"); }
+
+// ─── CDN Loaders ─────────────────────────────────────────────────────────────
+async function loadScript(src) {
+  if (document.querySelector('script[src="'+src+'"]')) {
+    await new Promise(res => setTimeout(res, 200));
+    return;
+  }
+  return new Promise((res,rej) => {
+    const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+async function loadJsPDF() {
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+  return window.jspdf;
+}
+async function loadXLSX() {
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+  return window.XLSX;
+}
+
+// ─── Colors ────────────────────────────────────────────────────────────────
+const EMBER=[232,89,60],GOLD=[201,146,47],TEAL=[42,157,143];
+const COAL=[26,20,16],DARK=[44,35,24],SMOKE=[107,94,82];
+const PALE=[232,221,213],WHITE=[255,255,255];
+
+// ─── Paint fire bars into a table cell ────────────────────────────────────
+// Call from BOTH willDrawCell (to blank text) and didDrawCell (to paint bars)
+const RATING_COL_MARKER = '__RATING__';
+
+function paintFireBars(doc, cell, value) {
+  const v = Math.min(Math.max(Math.round(Number(value)||0),0),5);
+  const total = 5;
+  const barW = 6, barH = 6, gap = 2;
+  const totalW = total*(barW+gap)-gap;
+  const cx = cell.x + (cell.width - totalW)/2;
+  const cy = cell.y + (cell.height - barH)/2;
+  for(let i=0;i<total;i++){
+    const bx = cx + i*(barW+gap);
+    if(i<v){
+      const fade = 1 - (i/total)*0.25;
+      doc.setFillColor(Math.round(232*fade),Math.round(89*fade),Math.round(60*fade));
+    } else {
+      doc.setFillColor(210,200,195);
+    }
+    doc.roundedRect(bx,cy,barW,barH,1.5,1.5,'F');
+  }
+}
+
+// Wrap a numeric value so autoTable knows it's a rating column
+function ratingCell(v) {
+  return { content: String(Math.round(Number(v)||0)), styles: { textColor: [255,255,255], fontSize:1 } };
+}
+
+// ─── PDF Helpers ─────────────────────────────────────────────────────────────
+function addPageHeader(doc, title, sub) {
+  const W=doc.internal.pageSize.getWidth();
+  doc.setFillColor(...COAL); doc.rect(0,0,W,30,'F');
+  doc.setFillColor(...EMBER); doc.rect(0,28,W,2,'F');
+  // Logo — left side, safely within bounds
+  doc.setTextColor(...EMBER); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text('BONFIRE METHOD', 14, 12);
+  doc.setTextColor(...PALE); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+  doc.text(sub||'thebonfirecompany.com', 14, 22);
+  // Title — right side
+  doc.setTextColor(...PALE); doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.text(title, W-14, 12, {align:'right'});
+  doc.setTextColor(...SMOKE); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+  doc.text(new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), W-14, 22, {align:'right'});
+}
+
+function addPageFooter(doc, pageNum, total) {
+  const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight();
+  doc.setFillColor(...DARK); doc.rect(0,H-12,W,12,'F');
+  doc.setTextColor(...SMOKE); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('(c) 2026 Jason Rumbough  |  The Bonfire Method  |  Confidential', 14, H-4);
+  doc.text('Page '+pageNum+' of '+total, W-14, H-4, {align:'right'});
+}
+
+function sectionBand(doc, label, y, color) {
+  const W=doc.internal.pageSize.getWidth();
+  const bandH = 14;
+  doc.setFillColor(...(color||EMBER)); doc.rect(0,y,W,bandH,'F');
+  doc.setTextColor(...WHITE); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+  const maxW = W - 28;
+  const lines = doc.splitTextToSize(label, maxW);
+  // Vertically center text: baseline = y + bandH/2 + fontSize*0.35 (approx ascender)
+  doc.text(lines[0], 14, y + bandH*0.68);
+  return y + bandH;
+}
+
+// didDrawCell hook — paint bars over rating cells (those containing only a digit 0-5)
+function makeRatingHook(doc, ratingColIndex) {
+  return {
+    willDrawCell(data) {
+      if(data.section==='body' && data.column.index===ratingColIndex) {
+        // Make text invisible — bars will be drawn in didDrawCell
+        data.cell.styles.textColor = data.cell.styles.fillColor || [255,255,255];
+      }
+    },
+    didDrawCell(data) {
+      if(data.section==='body' && data.column.index===ratingColIndex) {
+        const raw = String(data.cell.raw||'');
+        const v = parseInt(raw,10);
+        if(!isNaN(v) && v>=0 && v<=5) paintFireBars(doc, data.cell, v);
+      }
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PDF: Individual Client
+// ═══════════════════════════════════════════════════════════════════════
+export async function exportClientPDF(client, summary, tp, notes) {
+  await loadJsPDF();
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'letter'});
+  const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=36;
+  const profile=client.profile||{}, personality=client.personality||{}, scores=client.scores||{};
+  const cleanSummary=stripBold(summary||client.coaching_summary||'');
+  const cleanTP=stripBold(tp||client.talking_points||'');
+  const cleanNotes=notes||client.coach_notes||'';
+
+  // PAGE 1 — Profile + Scores
+  addPageHeader(doc,'Client Report','Coach Copy  |  Confidential');
+  let y=44;
+
+  // Name banner
+  doc.setFillColor(...DARK); doc.rect(M,y,W-M*2,44,'F');
+  doc.setFillColor(...EMBER); doc.rect(M,y,4,44,'F');
+  doc.setTextColor(...PALE); doc.setFontSize(17); doc.setFont('helvetica','bold');
+  doc.text(client.name||'Anonymous', M+14, y+17);
+  const subtext=[profile.occupation,profile.location].filter(Boolean).join('  |  ');
+  if(subtext){doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(...SMOKE);doc.text(subtext,M+14,y+31);}
+  // Score badge
+  doc.setFillColor(...EMBER); doc.roundedRect(W-M-58,y+6,58,32,4,4,'F');
+  doc.setTextColor(...WHITE); doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text(String(client.overall_score||'--'),W-M-29,y+25,{align:'center'});
+  doc.setFontSize(7); doc.text('OVERALL',W-M-29,y+35,{align:'center'});
+  y+=56;
+
+  // Profile table
+  const profileRows=[
+    ['Email',client.email||''],['Age',profile.age||''],['Gender',profile.gender||''],
+    ['Occupation',profile.occupation||''],['Location',profile.location||''],
+    ['Submitted',new Date(client.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})],
+    ['Status',(client.status||'pending').toUpperCase()],
+  ].filter(([,v])=>v);
+  if(personality.tests?.length) profileRows.push(['Assessments',personality.tests.join(', ')]);
+  if(personality.results) profileRows.push(['Results',personality.results]);
+  if(personality.background) profileRows.push(['Background',personality.background]);
+
+  doc.autoTable({startY:y,margin:{left:M,right:M},head:[['CLIENT PROFILE','']],body:profileRows,theme:'plain',
+    headStyles:{fillColor:DARK,textColor:PALE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8},
+    columnStyles:{0:{fontStyle:'bold',cellWidth:95,textColor:SMOKE},1:{}},
+    alternateRowStyles:{fillColor:[250,247,244]}});
+  y=doc.lastAutoTable.finalY+12;
+
+  // Spark statement
+  if(client.spark_statement){
+    const lines=doc.splitTextToSize('"'+client.spark_statement+'"',W-M*2-20);
+    const bh=lines.length*12+20;
+    doc.setFillColor(255,249,245); doc.setDrawColor(...EMBER); doc.setLineWidth(0.5);
+    doc.rect(M,y,W-M*2,bh,'FD');
+    doc.setFillColor(...EMBER); doc.rect(M,y,3,bh,'F');
+    doc.setTextColor(...SMOKE); doc.setFontSize(7); doc.setFont('helvetica','bold');
+    doc.text('SPARK STATEMENT',M+10,y+11);
+    doc.setFont('helvetica','italic'); doc.setTextColor(70,50,30);
+    doc.text(lines,M+10,y+23);
+    y+=bh+12;
+  }
+
+  // 4 pillar cards
+  const cw=(W-M*2-12)/4;
+  [{label:'OVERALL',val:String(client.overall_score||'--'),col:EMBER},
+   {label:'SPARK',val:pillarAvg(PILLAR_GROUPS[0].keys,scores).toFixed(1),col:EMBER},
+   {label:'SYSTEMS',val:pillarAvg(PILLAR_GROUPS[1].keys,scores).toFixed(1),col:GOLD},
+   {label:'AIR',val:pillarAvg(PILLAR_GROUPS[2].keys,scores).toFixed(1),col:TEAL}
+  ].forEach((c,i)=>{
+    const cx=M+i*(cw+4);
+    doc.setFillColor(...DARK); doc.roundedRect(cx,y,cw,38,3,3,'F');
+    doc.setFillColor(...c.col); doc.rect(cx,y,cw,3,'F');
+    doc.setTextColor(...c.col); doc.setFontSize(20); doc.setFont('helvetica','bold');
+    doc.text(c.val,cx+cw/2,y+24,{align:'center'});
+    doc.setFontSize(7); doc.setTextColor(...SMOKE); doc.text(c.label,cx+cw/2,y+34,{align:'center'});
+  });
+  y+=50;
+
+  // Score detail table — column 1 is Rating (index 1), stores raw numeric
+  const scoreBody=[];
+  PILLAR_GROUPS.forEach(g=>{
+    scoreBody.push([{content:g.label,colSpan:3,styles:{fillColor:g.color,textColor:WHITE,fontStyle:'bold',fontSize:8}}]);
+    g.keys.forEach(k=>{
+      const v=Number(scores[k])||0;
+      if(v>0) scoreBody.push([SCORE_LABELS[k]||k, v, v+'/5']);
+    });
+  });
+  const hook1=makeRatingHook(doc,1);
+  doc.autoTable({startY:y,margin:{left:M,right:M},head:[['Area','Rating','Score']],body:scoreBody,theme:'striped',
+    headStyles:{fillColor:COAL,textColor:PALE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8},
+    columnStyles:{0:{cellWidth:165},1:{cellWidth:80,halign:'center'},2:{cellWidth:45,halign:'center',fontStyle:'bold'}},
+    willDrawCell:hook1.willDrawCell, didDrawCell:hook1.didDrawCell});
+  y=doc.lastAutoTable.finalY+12;
+
+  // PAGE 2 — Summary + Talking Points + Notes
+  doc.addPage(); addPageHeader(doc,'Coaching Notes','Coach Copy  |  Confidential'); y=44;
+
+  const renderSection=(text,headerCol)=>{
+    if(!text) return;
+    text.split('\n').forEach(line=>{
+      if(y>H-55){doc.addPage();addPageHeader(doc,'Coaching Notes (cont.)','');y=44;}
+      const isH=line.trim().endsWith(':')&&line.trim().length<70&&!line.trim().startsWith('-');
+      doc.setFont('helvetica',isH?'bold':'normal');
+      doc.setTextColor(...(isH?(headerCol||EMBER):[50,40,30]));
+      doc.setFontSize(isH?9.5:9);
+      if(line.trim()){const w=doc.splitTextToSize(line.trim(),W-M*2);doc.text(w,M,y);y+=w.length*12+(isH?3:0);}
+      else{y+=7;}
+    });
+    y+=8;
+  };
+
+  if(cleanSummary){y=sectionBand(doc,'COACHING SUMMARY',y,EMBER)+9;renderSection(cleanSummary,EMBER);}
+  if(cleanTP){
+    if(y>H-100){doc.addPage();addPageHeader(doc,'Talking Points','');y=44;}
+    y=sectionBand(doc,'DISCOVERY CALL TALKING POINTS',y,TEAL)+9;renderSection(cleanTP,TEAL);
+  }
+  if(cleanNotes){
+    if(y>H-100){doc.addPage();addPageHeader(doc,"Coach's Notes",'');y=44;}
+    y=sectionBand(doc,"COACH'S NOTES (PRIVATE)",y,GOLD)+9;renderSection(cleanNotes,GOLD);
+  }
+
+  const tot=doc.internal.getNumberOfPages();
+  for(let i=1;i<=tot;i++){doc.setPage(i);addPageFooter(doc,i,tot);}
+  doc.save('bonfire-'+(client.name||'client').toLowerCase().replace(/\s+/g,'-')+'-report.pdf');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PDF: Aggregate Cohort
+// ═══════════════════════════════════════════════════════════════════════
+export async function exportAggregatePDF(clients) {
+  if(!clients?.length) return;
+  await loadJsPDF();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'letter'});
+  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=36;
+  const n=clients.length;
+  const allOv=clients.map(c=>Number(c.overall_score)||0).filter(v=>v>0);
+  const avgOv=allOv.length?(allOv.reduce((a,b)=>a+b,0)/allOv.length).toFixed(2):0;
+  const minOv=allOv.length?Math.min(...allOv).toFixed(2):0;
+  const maxOv=allOv.length?Math.max(...allOv).toFixed(2):0;
+
+  const pillarStats=PILLAR_GROUPS.map(g=>{
+    const avgs=clients.map(c=>pillarAvg(g.keys,c.scores||{})).filter(v=>v>0);
+    return{...g,avg:avgs.length?(avgs.reduce((a,b)=>a+b,0)/avgs.length).toFixed(2):0,
+      min:avgs.length?Math.min(...avgs).toFixed(2):0,max:avgs.length?Math.max(...avgs).toFixed(2):0};
+  });
+
+  const allKeys=[...PILLAR_GROUPS[0].keys,...PILLAR_GROUPS[1].keys,...PILLAR_GROUPS[2].keys];
+  const areaStats=allKeys.map(k=>{
+    const vals=clients.map(c=>Number((c.scores||{})[k])||0).filter(v=>v>0);
+    const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+    return{key:k,label:SCORE_LABELS[k]||k,avg};
+  }).sort((a,b)=>b.avg-a.avg);
+
+  const bands={thriving:[],healthy:[],developing:[],critical:[]};
+  clients.forEach(c=>{
+    const v=Number(c.overall_score)||0;
+    if(v>=4)bands.thriving.push(c.name||'?');
+    else if(v>=3)bands.healthy.push(c.name||'?');
+    else if(v>=2)bands.developing.push(c.name||'?');
+    else bands.critical.push(c.name||'?');
+  });
+
+  // PAGE 1 — Executive Summary
+  addPageHeader(doc,'Cohort Analytics Report','Bonfire Method  |  Coach Dashboard Export');
+  let y=44;
+
+  // Stat cards
+  const cw=(W-M*2-12)/4;
+  [{label:'TOTAL CLIENTS',val:String(n),col:EMBER},{label:'COHORT AVG',val:String(avgOv),col:GOLD},
+   {label:'LOWEST',val:String(minOv),col:EMBER},{label:'HIGHEST',val:String(maxOv),col:TEAL}
+  ].forEach((c,i)=>{
+    const cx=M+i*(cw+4);
+    doc.setFillColor(...DARK);doc.roundedRect(cx,y,cw,46,4,4,'F');
+    doc.setFillColor(...c.col);doc.rect(cx,y,cw,3,'F');
+    doc.setTextColor(...c.col);doc.setFontSize(22);doc.setFont('helvetica','bold');
+    doc.text(c.val,cx+cw/2,y+27,{align:'center'});
+    doc.setFontSize(7);doc.setTextColor(...SMOKE);doc.text(c.label,cx+cw/2,y+39,{align:'center'});
+  });
+  y+=58;
+
+  y=sectionBand(doc,'SCORE DISTRIBUTION',y,COAL)+7;
+  doc.autoTable({startY:y,margin:{left:M,right:M},
+    head:[['Band','Count','%','Clients']],
+    body:[
+      ['Thriving  (4.0 - 5.0)',bands.thriving.length, Math.round(bands.thriving.length/n*100)+'%', bands.thriving.join(', ')||'None'],
+      ['Healthy   (3.0 - 3.9)',bands.healthy.length,  Math.round(bands.healthy.length/n*100)+'%',  bands.healthy.join(', ')||'None'],
+      ['Developing (2.0 - 2.9)',bands.developing.length,Math.round(bands.developing.length/n*100)+'%',bands.developing.join(', ')||'None'],
+      ['Critical  (0.0 - 1.9)',bands.critical.length,  Math.round(bands.critical.length/n*100)+'%',  bands.critical.join(', ')||'None'],
+    ],
+    theme:'striped',headStyles:{fillColor:COAL,textColor:PALE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8},
+    columnStyles:{0:{cellWidth:130,fontStyle:'bold'},1:{cellWidth:40,halign:'center'},2:{cellWidth:40,halign:'center'},3:{}}});
+  y=doc.lastAutoTable.finalY+12;
+
+  y=sectionBand(doc,'PILLAR AVERAGES',y,EMBER)+7;
+  const hook2=makeRatingHook(doc,4);
+  doc.autoTable({startY:y,margin:{left:M,right:M},
+    head:[['Pillar','Avg','Min','Max','Rating']],
+    body:pillarStats.map(g=>[g.label,g.avg,g.min,g.max,Math.round(g.avg)]),
+    theme:'striped',headStyles:{fillColor:COAL,textColor:PALE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8},
+    columnStyles:{0:{cellWidth:150,fontStyle:'bold'},1:{cellWidth:55,halign:'center'},2:{cellWidth:50,halign:'center'},3:{cellWidth:50,halign:'center'},4:{cellWidth:80,halign:'center'}},
+    willDrawCell:hook2.willDrawCell,didDrawCell:hook2.didDrawCell});
+  y=doc.lastAutoTable.finalY+12;
+
+  if(y>H-140){doc.addPage();addPageHeader(doc,'Cohort Analytics (cont.)','');y=44;}
+
+  y=sectionBand(doc,'TOP 3 STRENGTHS',y,TEAL)+7;
+  const hook3=makeRatingHook(doc,2);
+  doc.autoTable({startY:y,margin:{left:M,right:M},head:[['Area','Avg','Rating']],
+    body:areaStats.slice(0,3).map(a=>[a.label,a.avg.toFixed(2),Math.round(a.avg)]),
+    theme:'plain',headStyles:{fillColor:TEAL,textColor:WHITE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:9},
+    columnStyles:{0:{fontStyle:'bold'},1:{cellWidth:80,halign:'center'},2:{cellWidth:90,halign:'center'}},
+    willDrawCell:hook3.willDrawCell,didDrawCell:hook3.didDrawCell});
+  y=doc.lastAutoTable.finalY+10;
+
+  y=sectionBand(doc,'BOTTOM 3 GAPS',y,EMBER)+7;
+  const hook4=makeRatingHook(doc,2);
+  doc.autoTable({startY:y,margin:{left:M,right:M},head:[['Area','Avg','Rating']],
+    body:[...areaStats].reverse().slice(0,3).map(a=>[a.label,a.avg.toFixed(2),Math.round(a.avg)]),
+    theme:'plain',headStyles:{fillColor:EMBER,textColor:WHITE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:9},
+    columnStyles:{0:{fontStyle:'bold'},1:{cellWidth:80,halign:'center'},2:{cellWidth:90,halign:'center'}},
+    willDrawCell:hook4.willDrawCell,didDrawCell:hook4.didDrawCell});
+  y=doc.lastAutoTable.finalY+14;
+
+  // PAGE 2 — Area Breakdown
+  doc.addPage();addPageHeader(doc,'Area-by-Area Breakdown','Bonfire Method  |  Coach Dashboard Export');y=44;
+  PILLAR_GROUPS.forEach(group=>{
+    y=sectionBand(doc,group.label,y,group.color)+7;
+    const rows=group.keys.map(k=>{
+      const vals=clients.map(c=>Number((c.scores||{})[k])||0).filter(v=>v>0);
+      const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+      return[SCORE_LABELS[k]||k,avg.toFixed(2),Math.round(avg),Math.round(avg/5*100)+'%',vals.length+'/'+n];
+    });
+    const hook=makeRatingHook(doc,2);
+    doc.autoTable({startY:y,margin:{left:M,right:M},head:[['Area','Avg','Rating','% Max','Resp.']],body:rows,
+      theme:'striped',headStyles:{fillColor:COAL,textColor:PALE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8},
+      columnStyles:{0:{cellWidth:155,fontStyle:'bold'},1:{cellWidth:42,halign:'center'},2:{cellWidth:80,halign:'center'},3:{cellWidth:48,halign:'center'},4:{cellWidth:42,halign:'center'}},
+      willDrawCell:hook.willDrawCell,didDrawCell:hook.didDrawCell});
+    y=doc.lastAutoTable.finalY+10;
+    if(y>H-70){doc.addPage();addPageHeader(doc,'Area Breakdown (cont.)','');y=44;}
+  });
+
+  // PAGE 3 — Client Matrix
+  doc.addPage();addPageHeader(doc,'Client Score Matrix','Bonfire Method  |  Coach Dashboard Export');y=44;
+  y=sectionBand(doc,'ALL CLIENTS - PILLAR SCORES',y,COAL)+7;
+  doc.autoTable({startY:y,margin:{left:M,right:M},
+    head:[['Name','Overall','SPARK','SYSTEMS','AIR','Occupation','Status']],
+    body:clients.map(c=>[
+      c.name||'--',c.overall_score||'--',
+      pillarAvg(PILLAR_GROUPS[0].keys,c.scores||{}).toFixed(1),
+      pillarAvg(PILLAR_GROUPS[1].keys,c.scores||{}).toFixed(1),
+      pillarAvg(PILLAR_GROUPS[2].keys,c.scores||{}).toFixed(1),
+      (c.profile?.occupation||'--').slice(0,28),
+      c.status==='approved'?'Approved':'Pending'
+    ]),
+    theme:'striped',headStyles:{fillColor:COAL,textColor:PALE,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8},
+    columnStyles:{0:{cellWidth:90,fontStyle:'bold'},1:{cellWidth:45,halign:'center',fontStyle:'bold'},
+      2:{cellWidth:42,halign:'center'},3:{cellWidth:48,halign:'center'},4:{cellWidth:35,halign:'center'},
+      5:{},6:{cellWidth:58,halign:'center'}}});
+
+  const tot=doc.internal.getNumberOfPages();
+  for(let i=1;i<=tot;i++){doc.setPage(i);addPageFooter(doc,i,tot);}
+  doc.save('bonfire-cohort-report-'+new Date().toISOString().split('T')[0]+'.pdf');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXCEL
+// ═══════════════════════════════════════════════════════════════════════
+export async function exportExcel(clients) {
+  if(!clients?.length) return;
+  const XLSX=await loadXLSX();
+  const wb=XLSX.utils.book_new();
+
+  const overviewHeaders=['Name','Email','Age','Gender','Occupation','Location','Status','Submitted','Overall Score','SPARK Avg','SYSTEMS Avg','AIR Avg','Assessments','Assessment Results','Background','Spark Statement'];
+  const overviewRows=clients.map(c=>{
+    const p=c.profile||{},per=c.personality||{},s=c.scores||{};
+    return[c.name||'',c.email||'',p.age||'',p.gender||'',p.occupation||'',p.location||'',
+      c.status||'pending',c.submitted_at?new Date(c.submitted_at).toLocaleDateString():'',
+      Number(c.overall_score)||0,+pillarAvg(PILLAR_GROUPS[0].keys,s).toFixed(2),
+      +pillarAvg(PILLAR_GROUPS[1].keys,s).toFixed(2),+pillarAvg(PILLAR_GROUPS[2].keys,s).toFixed(2),
+      per.tests?.join(', ')||'',per.results||'',per.background||'',c.spark_statement||''];
+  });
+  const ws1=XLSX.utils.aoa_to_sheet([overviewHeaders,...overviewRows]);
+  ws1['!cols']=[20,28,6,10,24,18,10,14,10,10,10,8,30,30,40,50].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws1,'Client Overview');
+
+  const scoreHeaders=['Name','Email',...Object.values(SCORE_LABELS),'Overall'];
+  const scoreRows=clients.map(c=>{
+    const s=c.scores||{};
+    return[c.name||'',c.email||'',...Object.keys(SCORE_LABELS).map(k=>Number(s[k])||0),Number(c.overall_score)||0];
+  });
+  const ws2=XLSX.utils.aoa_to_sheet([scoreHeaders,...scoreRows]);
+  ws2['!cols']=[{wch:20},{wch:28},...Object.keys(SCORE_LABELS).map(()=>({wch:16})),{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Detailed Scores');
+
+  const n=clients.length;
+  const statsData=[['BONFIRE METHOD - COHORT STATISTICS'],['Generated: '+new Date().toLocaleDateString()],['Client Count: '+n],[''],
+    ['OVERALL SCORES'],['Average',+(clients.map(c=>Number(c.overall_score)||0).reduce((a,b)=>a+b,0)/n).toFixed(2)],
+    ['Min',Math.min(...clients.map(c=>Number(c.overall_score)||0))],
+    ['Max',Math.max(...clients.map(c=>Number(c.overall_score)||0))],[''],
+    ['PILLAR AVERAGES','Avg','Min','Max'],
+    ...PILLAR_GROUPS.map(g=>{
+      const avgs=clients.map(c=>pillarAvg(g.keys,c.scores||{})).filter(v=>v>0);
+      return[g.label,avgs.length?(avgs.reduce((a,b)=>a+b,0)/avgs.length).toFixed(2):0,
+        avgs.length?Math.min(...avgs).toFixed(2):0,avgs.length?Math.max(...avgs).toFixed(2):0];
+    }),[''],
+    ['AREA AVERAGES','Avg','% of Max','Responses'],
+    ...[...PILLAR_GROUPS[0].keys,...PILLAR_GROUPS[1].keys,...PILLAR_GROUPS[2].keys].map(k=>{
+      const vals=clients.map(c=>Number((c.scores||{})[k])||0).filter(v=>v>0);
+      const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+      return[SCORE_LABELS[k]||k,+avg.toFixed(2),Math.round(avg/5*100)+'%',vals.length+'/'+n];
+    }),[''],
+    ['SCORE DISTRIBUTION','Count','%'],
+    ['Thriving (4.0-5.0)',clients.filter(c=>Number(c.overall_score)>=4).length,Math.round(clients.filter(c=>Number(c.overall_score)>=4).length/n*100)+'%'],
+    ['Healthy (3.0-3.9)',clients.filter(c=>Number(c.overall_score)>=3&&Number(c.overall_score)<4).length,Math.round(clients.filter(c=>Number(c.overall_score)>=3&&Number(c.overall_score)<4).length/n*100)+'%'],
+    ['Developing (2.0-2.9)',clients.filter(c=>Number(c.overall_score)>=2&&Number(c.overall_score)<3).length,Math.round(clients.filter(c=>Number(c.overall_score)>=2&&Number(c.overall_score)<3).length/n*100)+'%'],
+    ['Critical (0-1.9)',clients.filter(c=>Number(c.overall_score)<2).length,Math.round(clients.filter(c=>Number(c.overall_score)<2).length/n*100)+'%'],
+  ];
+  const ws3=XLSX.utils.aoa_to_sheet(statsData);
+  ws3['!cols']=[{wch:28},{wch:12},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Cohort Statistics');
+
+  const ws4=XLSX.utils.aoa_to_sheet([['Name','Email','Coaching Summary','Talking Points','Coach Notes'],
+    ...clients.map(c=>[c.name||'',c.email||'',stripBold(c.coaching_summary||''),stripBold(c.talking_points||''),c.coach_notes||''])]);
+  ws4['!cols']=[{wch:20},{wch:28},{wch:60},{wch:60},{wch:50}];
+  XLSX.utils.book_append_sheet(wb,ws4,'Coaching Summaries');
+
+  XLSX.writeFile(wb,'bonfire-export-'+new Date().toISOString().split('T')[0]+'.xlsx');
+}
