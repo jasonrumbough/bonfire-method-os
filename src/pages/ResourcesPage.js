@@ -27,13 +27,13 @@ export default function ResourcesPage({ data }) {
         'Spark statement: "' + sparkStatement + '". ' +
         'Overall score: ' + overall.toFixed(1) + '/5. ' +
         'Respond ONLY with valid JSON (no markdown): { "rationale": "1-2 sentence explanation of why these tracks fit this leader right now", "searchQuery": "spotify search string for this vibe", "tracks": [ { "title": "Song Title", "artist": "Artist Name", "emoji": "🔥", "vibe": "one word vibe" } ] } with exactly 6 tracks.';
-      const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": localStorage.getItem("bonfire_api_key") || "", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+      const apiRes = await fetch(SUPABASE_URL + '/functions/v1/coach', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+        body: JSON.stringify({ messages:[{role:'user',content:prompt}], system:'Return only valid JSON. No markdown, no backticks, no explanation.' })
       });
       const apiData = await apiRes.json();
-      const text = apiData.content?.[0]?.text || "";
+      const text = apiData.content?.[0]?.text || apiData.choices?.[0]?.message?.content || "";
       const clean = text.replace(/```json|```/g,"").trim();
       setPlaylist(JSON.parse(clean));
     } catch(e) { console.error(e); }
