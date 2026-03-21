@@ -21,6 +21,7 @@ const RHYTHM_OPTIONS = ["Daily","Every few days","Weekly","Bi-weekly","Monthly",
 
 const TABS = [
   { key:"overview",  label:"Overview" },
+  { key:"notes",     label:"Notes" },
   { key:"spark",     label:"Spark",   ac:"active-spark" },
   { key:"systems",   label:"SYSTEMS", ac:"active-systems" },
   { key:"rhythm",    label:"Rhythm",  ac:"active-systems" },
@@ -215,6 +216,36 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
                 No scores yet — complete the Spark and SYSTEMS tabs to populate.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── NOTES (Daily Fire) ── */}
+      {pillar === "notes" && (
+        <div>
+        </div>
+      )}
+
+      {/* ── SPARK / SYSTEMS audit questions ── */}
+      {isAuditPillar && (
+        <div className="card">
+          <div style={{marginBottom:"1rem"}}>
+            <div className="card-title">{pillar==="spark"?"Spark — Six P's":"SYSTEMS Audit"}</div>
+            <div className="card-sub" style={{marginTop:4}}>
+              Rate each 1–5. More fire = stronger.
+              {dirty&&<span style={{color:"var(--gold-light)",marginLeft:8,fontSize:"0.75rem"}}>· Unsaved changes</span>}
+            </div>
+          </div>
+          {questions.map(q=>(
+            <div key={q.id} className="audit-question">
+              <div className="audit-q"><span>{q.p} — </span>{q.q}</div>
+              <FireRating value={localScores[q.id]||0} onChange={v=>handleScore(q.id,v)} />
+            </div>
+          ))}
+          <hr className="divider"/>
+          <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
+            {saved&&<span className="save-confirm">✓ Saved to history</span>}
+            {canSave&&<button className="btn btn-primary" onClick={saveAudit}>{dirty?"Save Changes":"Save Audit Results"}</button>}
           </div>
         </div>
       )}
