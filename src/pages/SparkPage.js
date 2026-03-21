@@ -1,143 +1,98 @@
-import { useState, useEffect } from "react";
+import React from "react";
+import { AUDIT_QUESTIONS } from "../utils/data";
 
-export default function SparkPage({ data, update }) {
+const SIX_P = [
+  { p:"Passion",     prompt:"What topics energize you? What work makes you lose track of time?" },
+  { p:"Pain",        prompt:"What personal struggles shaped your most meaningful work?" },
+  { p:"Pattern",     prompt:"What problems do you keep seeing that others overlook?" },
+  { p:"Practice",    prompt:"What skills have you built through years of deliberate work?" },
+  { p:"Provision",   prompt:"How does your spark create sustainable financial provision?" },
+  { p:"Personality", prompt:"How are you naturally wired to lead? (Visionary, Builder, Shepherd...)" },
+];
+
+const P_COLOR = { Passion:"#E8593C", Pain:"#C9922F", Pattern:"#2A9D8F", Practice:"#3478C0", Provision:"#8B5CF6", Personality:"#E8593C" };
+
+function FireBar({ value }) {
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:3}}>
+      {[1,2,3,4,5].map(n=>(
+        <span key={n} style={{fontSize:"0.9rem",color:value>=n?"#E8593C":"#3D3228"}}>🔥</span>
+      ))}
+      <span style={{fontSize:"0.72rem",color:"var(--smoke)",marginLeft:4}}>{value||0}/5</span>
+    </div>
+  );
+}
+
+export default function SparkPage({ data, setPage }) {
   const spark = data.spark || {};
-  const [form, setForm] = useState({
-    target:  spark.target  || "",
-    outcome: spark.outcome || "",
-    avoid:   spark.avoid   || "",
-    method:  spark.method  || "",
-  });
-  const [saved, setSaved] = useState(false);
-
-  // Build statement dynamically from the four fields
-  const buildStatement = (f) => {
-    const target  = f.target.trim()  || "[target audience]";
-    const outcome = f.outcome.trim() || "[positive outcome]";
-    const avoid   = f.avoid.trim()   || "[negative consequence]";
-    const method  = f.method.trim()  || "[method/process]";
-    return "I help " + target + " achieve " + outcome + " while avoiding " + avoid + " through " + method + ".";
-  };
-
-  const statement = buildStatement(form);
-  const isComplete = form.target && form.outcome && form.avoid && form.method;
-
-  const save = () => {
-    update({ ...data, spark: { ...form }, sparkStatement: isComplete ? statement : data.sparkStatement || "" });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  // Auto-save as user types (debounced via useEffect)
-  useEffect(() => {
-    if (!isComplete) return;
-    const t = setTimeout(() => {
-      update({ ...data, spark: { ...form }, sparkStatement: statement });
-    }, 800);
-    return () => clearTimeout(t);
-  }, [form.target, form.outcome, form.avoid, form.method]);
-
-  const SIX_P = [
-    { p: "Passion",     prompt: "What topics energize you? What work makes you lose track of time?" },
-    { p: "Pain",        prompt: "What personal struggles shaped your most meaningful work?" },
-    { p: "Pattern",     prompt: "What problems do you keep seeing that others overlook?" },
-    { p: "Practice",    prompt: "What skills have you built through years of deliberate work?" },
-    { p: "Provision",   prompt: "How does your spark create sustainable financial provision?" },
-    { p: "Personality", prompt: "How are you naturally wired to lead? (Visionary, Builder, Shepherd…)" },
-  ];
-
-  const fieldStyle = (val) => ({
-    borderColor: val.trim() ? "rgba(232,89,60,0.4)" : undefined,
-  });
+  const scores = data.auditScores || {};
+  const statement = data.sparkStatement || "";
+  const sparkAvg = AUDIT_QUESTIONS.spark.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.spark.length;
 
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">Spark</div>
-        <div className="page-desc">Define the fire that starts everything — your purpose, your why.</div>
-      </div>
-
-      {/* Dynamic Spark Statement — top of page, built from the four fields */}
-      <div className="card ember-glow" style={{ marginBottom:"1.5rem" }}>
-        <div style={{ fontSize:"0.68rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:8 }}>
-          My Spark Statement
-        </div>
-        <div style={{
-          fontFamily:"var(--font-display)",
-          fontSize:"1.1rem",
-          color: isComplete ? "var(--cream)" : "var(--smoke)",
-          lineHeight:1.7,
-          fontStyle:"italic",
-          minHeight:"2.5rem",
-          transition:"color 0.3s",
-        }}>
-          {statement}
-        </div>
-        {!isComplete && (
-          <div style={{ fontSize:"0.72rem", color:"var(--smoke)", marginTop:8 }}>
-            Fill in all four fields below to complete your statement.
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+          <div>
+            <div className="page-title">Spark</div>
+            <div className="page-desc">Your purpose, your why — the fire that starts everything.</div>
           </div>
-        )}
-      </div>
-
-      {/* Four builder fields */}
-      <div className="card">
-        <div className="card-title" style={{ marginBottom:4 }}>Statement Builder</div>
-        <div className="card-sub" style={{ marginBottom:"1.25rem" }}>
-          I help [Target] achieve [Outcome] while avoiding [Negative] through [Method].
-        </div>
-
-        <div className="two-col">
-          <div className="form-group">
-            <label>Who do you serve? <span style={{ color:"var(--ember)" }}>Target Audience</span></label>
-            <input style={fieldStyle(form.target)} value={form.target}
-              onChange={e => setForm(f => ({ ...f, target: e.target.value }))}
-              placeholder="burned-out leaders, high-performing executives..." />
-          </div>
-          <div className="form-group">
-            <label>What do they achieve? <span style={{ color:"var(--ember)" }}>Positive Outcome</span></label>
-            <input style={fieldStyle(form.outcome)} value={form.outcome}
-              onChange={e => setForm(f => ({ ...f, outcome: e.target.value }))}
-              placeholder="rebuild clarity and sustainable impact..." />
-          </div>
-          <div className="form-group">
-            <label>What do they avoid? <span style={{ color:"var(--ember)" }}>Negative Consequence</span></label>
-            <input style={fieldStyle(form.avoid)} value={form.avoid}
-              onChange={e => setForm(f => ({ ...f, avoid: e.target.value }))}
-              placeholder="burnout, exhaustion, system collapse..." />
-          </div>
-          <div className="form-group">
-            <label>How do you do it? <span style={{ color:"var(--ember)" }}>Method / Process</span></label>
-            <input style={fieldStyle(form.method)} value={form.method}
-              onChange={e => setForm(f => ({ ...f, method: e.target.value }))}
-              placeholder="the Bonfire Method framework..." />
-          </div>
-        </div>
-
-        <div style={{ display:"flex", justifyContent:"flex-end", gap:10, alignItems:"center" }}>
-          {saved && <span className="save-confirm">✓ Saved</span>}
-          <button className="btn btn-primary" onClick={save} disabled={!isComplete}>
-            Save Statement
+          <button className="btn btn-ghost btn-sm" onClick={()=>setPage&&setPage("audit")}
+            style={{fontSize:"0.78rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
+            ✏️ Edit in Audit
           </button>
         </div>
       </div>
 
-      {/* Six P's Discovery Notes */}
-      <div className="card">
-        <div className="card-title" style={{ marginBottom:12 }}>Six P's Discovery</div>
-        <div className="card-sub" style={{ marginBottom:"1.25rem" }}>
-          Reflect on each source. Your answers here should inform the fields above.
-        </div>
-        {SIX_P.map(p => (
-          <div key={p.p} className="form-group">
-            <label style={{ color:"var(--ember-light)", fontSize:"0.82rem" }}>{p.p}</label>
-            <div style={{ fontSize:"0.73rem", color:"var(--smoke)", marginBottom:6 }}>{p.prompt}</div>
-            <textarea rows={2}
-              value={(data.sixPNotes || {})[p.p] || ""}
-              onChange={e => update({ ...data, sixPNotes: { ...(data.sixPNotes || {}), [p.p]: e.target.value } })}
-              placeholder="Your reflections..." />
+      <div className="card ember-glow" style={{marginBottom:"1.5rem"}}>
+        <div style={{fontSize:"0.68rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>My Spark Statement</div>
+        {statement ? (
+          <div style={{fontFamily:"var(--font-display)",fontSize:"1.1rem",color:"var(--cream)",lineHeight:1.7,fontStyle:"italic"}}>
+            "{statement}"
           </div>
-        ))}
+        ) : (
+          <div style={{color:"var(--smoke)",fontSize:"0.875rem"}}>
+            No Spark Statement yet — <span style={{color:"var(--ember-light)",cursor:"pointer"}} onClick={()=>setPage&&setPage("audit")}>build yours in Audit →</span>
+          </div>
+        )}
+      </div>
+
+      {sparkAvg > 0 && (
+        <div className="card" style={{marginBottom:"1rem"}}>
+          <div className="card-header">
+            <div className="card-title">Spark Score</div>
+            <div style={{fontSize:"1.4rem",fontWeight:700,color:"#E8593C"}}>{sparkAvg.toFixed(1)}<span style={{fontSize:"0.8rem",color:"var(--smoke)"}}>/5</span></div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            {AUDIT_QUESTIONS.spark.map(q=>(
+              <div key={q.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 10px",background:"var(--ash)",borderRadius:6}}>
+                <span style={{fontSize:"0.78rem",color:"var(--pale)"}}>{q.p}</span>
+                <FireBar value={scores[q.id]||0} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="card">
+        <div className="card-title" style={{marginBottom:4}}>The Six Ps</div>
+        <div className="card-sub" style={{marginBottom:"1rem"}}>Your spark emerges from the intersection of these six forces.</div>
+        {SIX_P.map(item=>{
+          const answer = spark[item.p.toLowerCase()] || "";
+          return (
+            <div key={item.p} style={{marginBottom:16,paddingBottom:16,borderBottom:"1px solid var(--ash)"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                <span style={{fontSize:"0.62rem",padding:"2px 8px",borderRadius:20,background:"rgba(232,89,60,0.12)",color:P_COLOR[item.p]||"var(--ember)",textTransform:"uppercase",letterSpacing:"0.08em",fontWeight:600}}>{item.p}</span>
+              </div>
+              <div style={{fontSize:"0.78rem",color:"var(--smoke)",marginBottom:6}}>{item.prompt}</div>
+              {answer ? (
+                <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.6,padding:"8px 12px",background:"var(--ash)",borderRadius:6}}>{answer}</div>
+              ) : (
+                <div style={{fontSize:"0.78rem",color:"var(--smoke)",fontStyle:"italic"}}>Not yet answered — add in Audit</div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
