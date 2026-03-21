@@ -40,7 +40,7 @@ export default function Dashboard({ data, update, setPage }) {
     }, () => setFetchingWeather(false));
   };
 
-  const scores = data.auditScores || {};
+  const scores = data.auditScores || data.scores || {};
   const sparkScore = AUDIT_QUESTIONS.spark.reduce((a, q) => a + (scores[q.id] || 0), 0) / AUDIT_QUESTIONS.spark.length || 0;
   const sysScore   = AUDIT_QUESTIONS.systems.reduce((a, q) => a + (scores[q.id] || 0), 0) / AUDIT_QUESTIONS.systems.length || 0;
   const airScore   = AUDIT_QUESTIONS.air.reduce((a, q) => a + (scores[q.id] || 0), 0) / AUDIT_QUESTIONS.air.length || 0;
@@ -64,7 +64,7 @@ export default function Dashboard({ data, update, setPage }) {
     { label:"Overall Health", val:overall.toFixed(1),    color:"#E8593C" },
     { label:"Spark Score",    val:sparkScore.toFixed(1), color:"#C9922F" },
     { label:"SYSTEMS Score",  val:sysScore.toFixed(1),   color:"#2A9D8F" },
-    { label:"AIR Score",      val:airScore.toFixed(1),   color:"#3478C0" },
+    { label:"AIR Score",      val:(airScore*2).toFixed(1), color:"#3478C0", max:10 },
   ];
 
   const weatherIcon = (cond) => {
@@ -122,7 +122,7 @@ export default function Dashboard({ data, update, setPage }) {
             <div className="metric-value" style={{ color:m.color }}>{m.val}</div>
             <div className="metric-label">{m.label}</div>
             <div className="progress-bar" style={{ marginTop:8 }}>
-              <div className="progress-fill" style={{ width:Math.min((parseFloat(m.val) / (m.label==="AIR Score"?10:5) * 100),100) + "%", background:m.color }} />
+              <div className="progress-fill" style={{ width:Math.min((parseFloat(m.val) / (m.max||5) * 100),100) + "%", background:m.color }} />
             </div>
           </div>
         ))}
