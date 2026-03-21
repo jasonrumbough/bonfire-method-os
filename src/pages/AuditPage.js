@@ -349,6 +349,14 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
             })}
           </div>
 
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <hr className="divider"/>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:"0.78rem",color:"var(--smoke)"}}>Saves AIR scores to profile + history</span>
+              <button className="btn btn-primary" onClick={saveAudit}>💾 Save AIR Scores</button>
+            </div>
+          </div>
+
 {AIR_RHYTHMS.map(r=>(
             <div key={r.key} className="card">
               <div className="card-header">
