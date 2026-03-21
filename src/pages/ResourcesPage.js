@@ -240,24 +240,21 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             </div>
             <div style={{display:"grid",gap:6}}>
               {(playlist.tracks||[]).map((t,i)=>(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--ash)",borderRadius:8}}>
+                <a key={i} href={"https://open.spotify.com/search/"+encodeURIComponent((t.title||"")+" "+(t.artist||""))} target="_blank" rel="noreferrer"
+                  style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--ash)",borderRadius:8,textDecoration:"none",cursor:"pointer"}}>
                   <span style={{fontSize:"1rem",minWidth:20,textAlign:"center"}}>{t.emoji||"🎵"}</span>
                   <div style={{flex:1}}>
                     <div style={{fontSize:"0.82rem",color:"var(--pale)",fontWeight:500}}>{t.title}</div>
                     <div style={{fontSize:"0.72rem",color:"var(--smoke)"}}>{t.artist}</div>
                   </div>
-                  <div style={{fontSize:"0.68rem",color:"var(--ember)",padding:"2px 8px",background:"rgba(232,89,60,0.1)",borderRadius:12}}>{t.vibe}</div>
-                </div>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <div style={{fontSize:"0.68rem",color:"var(--ember)",padding:"2px 8px",background:"rgba(232,89,60,0.1)",borderRadius:12}}>{t.vibe}</div>
+                    <span style={{fontSize:"0.75rem",color:"#1DB954"}}>↗</span>
+                  </div>
+                </a>
               ))}
             </div>
-            {playlist.searchQuery && (
-              <div style={{marginTop:10,textAlign:"center"}}>
-                <a href={"https://open.spotify.com/search/"+encodeURIComponent(playlist.searchQuery)} target="_blank" rel="noreferrer"
-                  style={{fontSize:"0.78rem",color:"#1DB954",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}>
-                  <span style={{fontSize:"1rem"}}>🎧</span> Open in Spotify
-                </a>
-              </div>
-            )}
+
           </div>
         ) : playlistLoading ? (
           <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>Curating your playlist...</div>
