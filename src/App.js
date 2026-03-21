@@ -74,6 +74,7 @@ export default function App() {
   const [data, setData] = useState({});
   const [syncing, setSyncing] = useState(false);
   const [showEraseConfirm, setShowEraseConfirm] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [intakeData, setIntakeData] = useState(null);
 
   // Auth init
@@ -236,7 +237,7 @@ export default function App() {
       case "spark":       return <SparkPage    data={data} update={update} />;
       case "air":       return <AirPage data={userData} setPage={setPage} />;
       case "systems":     return <SystemsPage  data={data} update={update} setPage={setPage} />;
-      case "audit":       return <AuditPage    data={data} update={update} initialTab="daily_fire" />;
+      case "tend":       return <AuditPage    data={data} update={update} initialTab="overview" />;
       case "audit_air":   return <AuditPage    data={data} update={update} initialTab="air" />;
       case "coach":       return <CoachPage    data={data} />;
       case "notes":       return <NotesPage    data={data} update={update} />;
@@ -254,6 +255,28 @@ export default function App() {
         onSignOut={handleSignOut} syncing={syncing} localOnly={!supabaseConfigured}
         onEraseData={() => setShowEraseConfirm(true)} />
       <main className="main-content">{renderPage()}</main>
+
+      {showWelcome && (
+        <div className="modal-overlay" onClick={()=>setShowWelcome(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:420,textAlign:"center"}}>
+            <div style={{fontSize:"2rem",marginBottom:8}}>🔥</div>
+            <div style={{fontFamily:"var(--font-display)",fontSize:"1.4rem",color:"var(--ember)",marginBottom:8}}>
+              Welcome back{userData?.spark?.target ? ", " + (session?.user?.email?.split("@")[0] || "") : ""}
+            </div>
+            <div style={{fontSize:"0.875rem",color:"var(--fog)",lineHeight:1.7,marginBottom:"1.5rem"}}>
+              Ready to tend your fire today?
+            </div>
+            <div style={{display:"flex",gap:10,justifyContent:"center"}}>
+              <button className="btn btn-primary" onClick={()=>{setShowWelcome(false);setPage("tend");}}>
+                🪵 Tend the Fire
+              </button>
+              <button className="btn btn-ghost" onClick={()=>setShowWelcome(false)}>
+                Go to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showEraseConfirm && (
         <div className="modal-overlay" onClick={() => setShowEraseConfirm(false)}>
