@@ -255,7 +255,7 @@ export default function IntakeResultsPage({ intakeData, onEnterApp }) {
                 </div>
                 {summaryLoading && (
                   <div style={{display:"flex",alignItems:"center",gap:10,padding:"1rem",background:"var(--ash)",borderRadius:8,color:"var(--smoke)",fontSize:"0.82rem"}}>
-                    <span className="spinner"/> Generating your personalized coaching summary...
+                    <span className="spinner"/> Analyzing your results and generating your coaching summary...
                   </div>
                 )}
                 {!summaryLoading && summary && <SummaryWithBlur text={summary}/>}
