@@ -77,6 +77,15 @@ export default function App() {
 
   // Auth init
   useEffect(() => {
+    // Handle ?start=1 shareable link — force new intake flow for new clients
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('start') === '1') {
+      localStorage.removeItem('bonfire_v1');
+      localStorage.removeItem('bonfire_user_id');
+      localStorage.removeItem('bonfire_resources');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     if (!supabaseConfigured || !supabase) {
       // No Supabase — load from localStorage and skip auth
       setData(fromLS());
