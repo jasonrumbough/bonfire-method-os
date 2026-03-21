@@ -6,6 +6,7 @@ import IntakePage from "./pages/IntakePage";
 import IntakeResultsPage from "./pages/IntakeResultsPage";
 import Dashboard from "./pages/Dashboard";
 import SparkPage from "./pages/SparkPage";
+import AirPage from "./pages/AirPage";
 import SystemsPage from "./pages/SystemsPage";
 import AuditPage from "./pages/AuditPage";
 import CoachPage from "./pages/CoachPage";
@@ -219,20 +220,6 @@ export default function App() {
     return <IntakePage onComplete={handleIntakeComplete} />;
   }
 
-  // Handle ?start=1 shareable link — force new intake flow
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('start') === '1') {
-      // Clear local data so they go through intake fresh
-      localStorage.removeItem('bonfire_v1');
-      localStorage.removeItem('bonfire_user_id');
-      localStorage.removeItem('bonfire_resources');
-      // Remove the param from URL without reload
-      const clean = window.location.pathname;
-      window.history.replaceState({}, '', clean);
-    }
-  }, []);
-
   // 6. Intake done — check approval
   const userEmail = session?.user?.email || "";
   const isAdmin = ADMIN_EMAILS.includes(userEmail);
@@ -247,6 +234,7 @@ export default function App() {
     switch (page) {
       case "dashboard":   return <Dashboard    data={data} update={update} setPage={setPage} />;
       case "spark":       return <SparkPage    data={data} update={update} />;
+      case "air":       return <AirPage data={userData} setPage={setPage} />;
       case "systems":     return <SystemsPage  data={data} update={update} setPage={setPage} />;
       case "audit":       return <AuditPage    data={data} update={update} initialTab="daily_fire" />;
       case "audit_air":   return <AuditPage    data={data} update={update} initialTab="air" />;
