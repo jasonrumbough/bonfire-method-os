@@ -1,3 +1,4 @@
+import React from "react";
 import { SYSTEMS, AUDIT_QUESTIONS } from "../utils/data";
 
 // Maps each SYSTEMS pillar to its corresponding Audit → SYSTEMS question ID
