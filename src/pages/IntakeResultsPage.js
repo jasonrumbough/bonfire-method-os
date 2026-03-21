@@ -261,7 +261,7 @@ export default function IntakeResultsPage({ intakeData, onEnterApp }) {
                 {!summaryLoading && summary && <SummaryWithBlur text={summary}/>}
                 {!summaryLoading && !summary && (
                   <div style={{fontSize:"0.82rem",color:"#6B5E52",fontStyle:"italic",padding:"1rem",background:"var(--ash)",borderRadius:8}}>
-                    Summary unavailable. Please enter the app to continue.
+                    Generating your summary...
                   </div>
                 )}
               </div>
