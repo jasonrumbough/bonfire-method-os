@@ -5,17 +5,17 @@ const NAV = [
   { section:"The Method", items:[
     { key:"spark",   label:"Spark" },
     { key:"systems", label:"SYSTEMS" },
-    { key:"air",     label:"AIR Rhythm" },
+    { key:"air",     label:"AIR" },
   ]},
   { section:"Tools", items:[
     { key:"audit",       label:"Audit" },
     { key:"coach",       label:"Coach" },
     { key:"notes",       label:"Notes" },
     { key:"history",     label:"History" },
+    { key:"resources",   label:"Resources" },
   ]},
   { section:"Personal", items:[
     { key:"personality", label:"Personality" },
-    { key:"resources",   label:"Resources" },
     { key:"health",      label:"Health Data" },
   ]},
 ];
