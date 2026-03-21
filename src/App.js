@@ -1,5 +1,6 @@
 // cache-bust: 1774059311394
 import { useState, useEffect, useCallback } from "react";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./utils/supabase";
 import Sidebar from "./components/Sidebar";
 import AuthPage from "./pages/AuthPage";
 import IntakePage from "./pages/IntakePage";
@@ -75,6 +76,8 @@ export default function App() {
   const [syncing, setSyncing] = useState(false);
   const [showEraseConfirm, setShowEraseConfirm] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeMsg, setWelcomeMsg] = useState("");
+  const [welcomeLoading, setWelcomeLoading] = useState(false);
   const [intakeData, setIntakeData] = useState(null);
 
   // Auth init
@@ -264,8 +267,9 @@ export default function App() {
               Welcome back{userData?.spark?.target ? ", " + (session?.user?.email?.split("@")[0] || "") : ""}
             </div>
             <div style={{fontSize:"0.875rem",color:"var(--fog)",lineHeight:1.7,marginBottom:"1.5rem"}}>
-              Ready to tend your fire today?
+              {welcomeMsg || "Ready to tend your fire today?"}
             </div>
+            {welcomeLoading && <div style={{fontSize:"0.78rem",color:"var(--smoke)",marginBottom:8}}>Generating your message...</div>}
             <div style={{display:"flex",gap:10,justifyContent:"center"}}>
               <button className="btn btn-primary" onClick={()=>{setShowWelcome(false);setPage("tend");}}>
                 🪵 Tend the Fire
