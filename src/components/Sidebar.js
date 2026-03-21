@@ -1,22 +1,22 @@
 import { useState } from "react";
 
 const NAV = [
-  { section:"Overview", items:[{ key:"dashboard", label:"Dashboard" }]},
+  { section:"Overview", items:[{ key:"dashboard", label:"DASHBOARD" }]},
   { section:"The Method", items:[
     { key:"spark",   label:"SPARK" },
     { key:"systems", label:"SYSTEMS" },
     { key:"air",     label:"AIR" },
   ]},
   { section:"Tools", items:[
-    { key:"tend",        label:"Tend" },
-    { key:"coach",       label:"Coach" },
-    { key:"notes",       label:"Notes" },
-    { key:"history",     label:"History" },
-    { key:"resources",   label:"Resources" },
+    { key:"tend",        label:"TEND" },
+    { key:"coach",       label:"COACH" },
+    { key:"notes",       label:"NOTES" },
+    { key:"history",     label:"HISTORY" },
+    { key:"resources",   label:"RESOURCES" },
   ]},
   { section:"Personal", items:[
-    { key:"personality", label:"Personality" },
-    { key:"health",      label:"Health Data" },
+    { key:"personality", label:"PERSONALITY" },
+    { key:"health",      label:"HEALTH DATA" },
   ]},
 ];
 
