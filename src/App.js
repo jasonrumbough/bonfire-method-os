@@ -300,7 +300,7 @@ export default function App() {
             {welcomeLoading && <div style={{fontSize:"0.78rem",color:"var(--smoke)",marginBottom:8}}>Generating your message...</div>}
             <div style={{display:"flex",gap:10,justifyContent:"center"}}>
               <button className="btn btn-primary" onClick={()=>{setShowWelcome(false);setPage("tend");}}>
-                🪵 Tend the Fire
+                Tend the Fire
               </button>
               <button className="btn btn-ghost" onClick={()=>setShowWelcome(false)}>
                 Go to Dashboard
