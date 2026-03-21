@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { SYSTEMS, AUDIT_QUESTIONS } from "../utils/data";
 import { RadarChart, LineChart } from "../components/Charts";
@@ -121,7 +122,7 @@ export default function Dashboard({ data, update, setPage }) {
             <div className="metric-value" style={{ color:m.color }}>{m.val}</div>
             <div className="metric-label">{m.label}</div>
             <div className="progress-bar" style={{ marginTop:8 }}>
-              <div className="progress-fill" style={{ width:(m.val / 5 * 100) + "%", background:m.color }} />
+              <div className="progress-fill" style={{ width:Math.min((parseFloat(m.val) / (m.label==="AIR Score"?10:5) * 100),100) + "%", background:m.color }} />
             </div>
           </div>
         ))}
