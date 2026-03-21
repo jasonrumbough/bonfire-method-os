@@ -219,20 +219,6 @@ export default function App() {
     return <IntakePage onComplete={handleIntakeComplete} />;
   }
 
-  // Handle ?start=1 shareable link — force new intake flow
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('start') === '1') {
-      // Clear local data so they go through intake fresh
-      localStorage.removeItem('bonfire_v1');
-      localStorage.removeItem('bonfire_user_id');
-      localStorage.removeItem('bonfire_resources');
-      // Remove the param from URL without reload
-      const clean = window.location.pathname;
-      window.history.replaceState({}, '', clean);
-    }
-  }, []);
-
   // 6. Intake done — check approval
   const userEmail = session?.user?.email || "";
   const isAdmin = ADMIN_EMAILS.includes(userEmail);
