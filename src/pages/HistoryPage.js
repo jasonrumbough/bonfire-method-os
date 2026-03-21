@@ -41,7 +41,7 @@ export default function HistoryPage({ data, update }) {
     <div>
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <div className="page-title">📋 History</div>
+          <div className="page-title">History</div>
           <div className="page-desc">Your fire's journey — audit results, reflections, and milestones.</div>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>+ Add Entry</button>
