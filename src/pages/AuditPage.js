@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { AUDIT_QUESTIONS, ASHES, SYSTEMS } from "../utils/data";
 import FireRating from "../components/StarRating";
