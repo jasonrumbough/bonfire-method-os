@@ -53,7 +53,7 @@ export default function PersonalityPage({ data, update }) {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">🧬 Personality Profile</div>
+        <div className="page-title">Personality Profile</div>
         <div className="page-desc">Understanding how your fire naturally burns — the Personality P of the Six P's.</div>
       </div>
 
