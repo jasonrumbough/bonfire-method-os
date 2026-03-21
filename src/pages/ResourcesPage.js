@@ -29,7 +29,7 @@ export default function ResourcesPage({ data }) {
         'Respond ONLY with valid JSON (no markdown): { "rationale": "1-2 sentence explanation of why these tracks fit this leader right now", "searchQuery": "spotify search string for this vibe", "tracks": [ { "title": "Song Title", "artist": "Artist Name", "emoji": "🔥", "vibe": "one word vibe" } ] } with exactly 6 tracks.';
       const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": localStorage.getItem("bonfire_api_key") || "", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
         body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
       });
       const apiData = await apiRes.json();
@@ -218,7 +218,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"1.25rem", flexWrap:"wrap", gap:10 }}>
         <div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", color:"var(--cream)", marginBottom:4 }}>
-            📚 Daily Resources
+            Daily Resources
           </div>
 
       {/* Spotify Playlist */}
