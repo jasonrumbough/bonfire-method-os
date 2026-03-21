@@ -96,75 +96,6 @@ function WelcomeEmailButton({ email, name }) {
   );
 }
 
-
-/* build:1774094602 */
-function ApproveButton({ userId, onApproved }) {
-  const [status, setStatus] = React.useState("idle");
-  const handleApprove = async () => {
-    setStatus("approving");
-    try {
-      const { data: row } = await supabase.from("user_data").select("payload").eq("user_id", userId).single();
-      const newPayload = { ...row.payload, approved: true };
-      const { error } = await supabase.from("user_data").upsert({ user_id: userId, payload: newPayload, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
-      if (error) throw error;
-      setStatus("done");
-      onApproved && onApproved(userId, newPayload);
-    } catch(e) { setStatus("error"); alert("Approval failed: " + e.message); }
-  };
-  if (status === "done") return <span style={{color:"#5DCAA5",fontSize:"0.85rem"}}>checkmark Approved</span>;
-  return (
-    <button onClick={handleApprove} disabled={status==="approving"} style={{background:"rgba(42,157,143,0.2)",border:"1px solid rgba(42,157,143,0.4)",color:"#5DCAA5",borderRadius:6,padding:"8px 16px",fontSize:"0.85rem",cursor:"pointer",width:"100%",marginBottom:8}}>
-      {status==="approving" ? <><span className="spinner" style={{width:10,height:10}}/> Approving...</> : "✅ Approve Access"}
-    </button>
-  );
-}
-
-function DeleteUserButton({ userId, email, onDeleted }) {
-  const [status, setStatus] = React.useState("idle");
-  const handleDelete = async () => {
-    if (!window.confirm("Delete " + (email||"this user") + "? This cannot be undone.")) return;
-    setStatus("deleting");
-    try {
-      const { error } = await supabase.from("user_data").delete().eq("user_id", userId);
-      if (error) throw error;
-      setStatus("done");
-      onDeleted && onDeleted(userId);
-    } catch(e) { setStatus("error"); alert("Delete failed: " + e.message); }
-  };
-  return (
-    <button onClick={handleDelete} disabled={status==="deleting"} style={{background:"rgba(220,50,50,0.12)",border:"1px solid rgba(220,50,50,0.35)",color:"#ff6b6b",borderRadius:6,padding:"8px 16px",fontSize:"0.85rem",cursor:"pointer",width:"100%",marginBottom:8}}>
-      {status==="deleting" ? <><span className="spinner" style={{width:10,height:10}}/> Deleting...</> : "🗑 Delete User"}
-    </button>
-  );
-}
-
-function DailySummaryButton({ userId, email, name }) {
-  const [status, setStatus] = React.useState("idle");
-  const [msg, setMsg] = React.useState("");
-  const handleSend = async () => {
-    setStatus("sending"); setMsg("");
-    try {
-      const res = await fetch(SUPABASE_URL + "/functions/v1/tend-summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY },
-        body: JSON.stringify({ userId, email, name })
-      });
-      const d = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(d.error || "Failed");
-      setStatus("done"); setMsg("Sent!");
-    } catch(e) { setStatus("error"); setMsg("Error: " + e.message); }
-    setTimeout(() => { setStatus("idle"); setMsg(""); }, 3000);
-  };
-  return (
-    <div style={{marginBottom:8}}>
-      <button onClick={handleSend} disabled={status==="sending"} style={{background:"rgba(232,89,60,0.15)",border:"1px solid rgba(232,89,60,0.3)",color:"var(--ember)",borderRadius:6,padding:"8px 16px",fontSize:"0.85rem",cursor:"pointer",width:"100%"}}>
-        {status==="sending" ? <><span className="spinner" style={{width:10,height:10}}/> Sending...</> : "🔥 Send Daily Summary"}
-      </button>
-      {msg && <div style={{fontSize:"0.78rem",color:status==="done"?"#5DCAA5":"#ff6b6b",marginTop:4,textAlign:"center"}}>{msg}</div>}
-    </div>
-  );
-}
-
 export default function CoachPortal() {
   const [session, setSession] = useState(null);
   const [emailInput, setEmailInput] = useState("");
@@ -470,6 +401,27 @@ export default function CoachPortal() {
     const existingTP = stripBold(talkingPts[selected.id]||selected.talking_points||"");
     const currentNotes = notesEditing[selected.id] !== undefined ? notesEditing[selected.id] : (coachNotes[selected.id]||selected.coach_notes||"");
 
+    const handleApproveClient = async () => {
+      if (!selected || selected.status === 'approved') return;
+      try {
+        const updatedPayload = { ...(selected.payload || {}), approved: true };
+        await supabase.from('user_data').update({ payload: updatedPayload }).eq('user_id', selected.id);
+        setClients(prev => prev.map(c => c.id === selected.id ? { ...c, status: 'approved' } : c));
+        setSelected(prev => ({ ...prev, status: 'approved' }));
+      } catch(e) { console.error('Approve failed:', e); }
+    };
+
+    const handleDeleteClient = async () => {
+      if (!selected) return;
+      if (!window.confirm('Delete ' + selected.name + '? This cannot be undone.')) return;
+      try {
+        await supabase.from('user_data').delete().eq('user_id', selected.id);
+        setClients(prev => prev.filter(c => c.id !== selected.id));
+        setSelected(null);
+      } catch(e) { console.error('Delete failed:', e); }
+    };
+
+
     const sqlCmd = buildApproveSQL(selected.email||"");
 
     return (
@@ -498,6 +450,16 @@ export default function CoachPortal() {
                 color:selected.status==="approved"?"#5DCAA5":"var(--ember-light)"}}>
                 {selected.status==="approved"?"✓ Approved":"Pending"}
               </span>
+              {selected.status !== 'approved' && (
+                <button onClick={handleApproveClient}
+                  style={{marginLeft:8,padding:"3px 12px",fontSize:"0.72rem",background:"rgba(42,157,143,0.2)",color:"#5DCAA5",border:"1px solid rgba(42,157,143,0.4)",borderRadius:6,cursor:"pointer"}}>
+                  ✓ Approve
+                </button>
+              )}
+              <button onClick={handleDeleteClient}
+                style={{marginLeft:6,padding:"3px 12px",fontSize:"0.72rem",background:"rgba(232,89,60,0.1)",color:"var(--ember-light)",border:"1px solid rgba(232,89,60,0.3)",borderRadius:6,cursor:"pointer"}}>
+                🗑 Delete
+              </button>
             </div>
 
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:16}}>
@@ -627,9 +589,6 @@ export default function CoachPortal() {
               <div style={{marginTop:10,paddingTop:10,borderTop:"1px solid rgba(42,157,143,0.2)"}}>
                 <div style={{fontSize:"0.72rem",color:"var(--smoke)",marginBottom:8}}>After running the SQL above, send the user their welcome email with login info:</div>
                 <WelcomeEmailButton email={selected.email||""} name={selected.name||""}/>
-              {selected.status !== "approved" && <ApproveButton userId={selected.userId} onApproved={handleApproved}/>}
-              <DailySummaryButton userId={selected.userId} email={selected.email||""} name={selected.name||""}/>
-              <DeleteUserButton userId={selected.userId} email={selected.email||""} onDeleted={handleDeleted}/>
               </div>
             </div>
           )}
