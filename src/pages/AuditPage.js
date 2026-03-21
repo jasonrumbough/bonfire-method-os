@@ -26,6 +26,7 @@ const TABS = [
   { key:"air",       label:"AIR",     ac:"active-air" },
   { key:"ashes",     label:"ASHES",   ac:"active-air" },
   { key:"summary",   label:"Summary", ac:"active-spark" },
+  { key:"rhythm",    label:"Rhythm",  ac:"active-systems" },
 ];
 
 const SYS_AUDIT_MAP = { structure:"sy1", yield:"sy2", support:"sy3", time:"sy4", energy:"sy5", money:"sy6", story:"sy7" };
@@ -199,40 +200,6 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
             ))}
           </div>
 
-          {/* Daily Fire entries today */}
-          <div className="card">
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <div className="card-title">Daily Fire — {today}</div>
-              <div style={{ fontSize:"0.72rem", color:"var(--smoke)" }}>{(todayFire.entries||[]).length} entries</div>
-            </div>
-            <div style={{ display:"flex", gap:8, marginBottom:"1rem" }}>
-              <select value={newEntry.tag} onChange={e=>setNewEntry(n=>({...n,tag:e.target.value}))} style={{width:"auto",minWidth:120}}>
-                {DAILY_FIRE_TAGS.map(t=><option key={t} value={t}>{t}</option>)}
-              </select>
-              <input style={{flex:1}} value={newEntry.text}
-                onChange={e=>setNewEntry(n=>({...n,text:e.target.value}))}
-                onKeyDown={e=>e.key==="Enter"&&addFireEntry()}
-                placeholder="Scripture, question, insight, win..." />
-              <button className="btn btn-primary" onClick={addFireEntry} disabled={!newEntry.text.trim()}>Add</button>
-            </div>
-            {(todayFire.entries||[]).length===0 ? (
-              <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>No entries yet today.</div>
-            ) : (
-              [...(todayFire.entries||[])].reverse().map(entry=>(
-                <div key={entry.id} style={{display:"flex",gap:10,padding:"0.6rem 0.75rem",background:"var(--ash)",borderRadius:8,marginBottom:6}}>
-                  <div style={{flex:1}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
-                      <span className={"pill pill-"+(TAG_COLOR[entry.tag]||"smoke")}>{entry.tag}</span>
-                      <span style={{fontSize:"0.68rem",color:"var(--smoke)"}}>{entry.time}</span>
-                    </div>
-                    <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.5}}>{entry.text}</div>
-                  </div>
-                  <button onClick={()=>deleteFireEntry(entry.id)} style={{background:"none",border:"none",color:"var(--smoke)",cursor:"pointer",fontSize:"1rem",padding:"0 4px",alignSelf:"flex-start"}}>×</button>
-                </div>
-              ))
-            )}
-          </div>
-
           {/* Quick score overview */}
           <div className="card">
             <div className="card-title" style={{marginBottom:12}}>Current Scores at a Glance</div>
@@ -276,6 +243,46 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
             {saved&&<span className="save-confirm">✓ Saved to history</span>}
             {canSave&&<button className="btn btn-primary" onClick={saveAudit}>{dirty?"Save Changes":"Save Audit Results"}</button>}
           </div>
+        </div>
+      )}
+
+      {/* ── Daily Fire (SYSTEMS tab) ── */}
+      {pillar === "systems" && (
+        <div>
+          {/* Daily Fire entries today */}
+          <div className="card">
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+              <div className="card-title">Daily Fire — {today}</div>
+              <div style={{ fontSize:"0.72rem", color:"var(--smoke)" }}>{(todayFire.entries||[]).length} entries</div>
+            </div>
+            <div style={{ display:"flex", gap:8, marginBottom:"1rem" }}>
+              <select value={newEntry.tag} onChange={e=>setNewEntry(n=>({...n,tag:e.target.value}))} style={{width:"auto",minWidth:120}}>
+                {DAILY_FIRE_TAGS.map(t=><option key={t} value={t}>{t}</option>)}
+              </select>
+              <input style={{flex:1}} value={newEntry.text}
+                onChange={e=>setNewEntry(n=>({...n,text:e.target.value}))}
+                onKeyDown={e=>e.key==="Enter"&&addFireEntry()}
+                placeholder="Scripture, question, insight, win..." />
+              <button className="btn btn-primary" onClick={addFireEntry} disabled={!newEntry.text.trim()}>Add</button>
+            </div>
+            {(todayFire.entries||[]).length===0 ? (
+              <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>No entries yet today.</div>
+            ) : (
+              [...(todayFire.entries||[])].reverse().map(entry=>(
+                <div key={entry.id} style={{display:"flex",gap:10,padding:"0.6rem 0.75rem",background:"var(--ash)",borderRadius:8,marginBottom:6}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                      <span className={"pill pill-"+(TAG_COLOR[entry.tag]||"smoke")}>{entry.tag}</span>
+                      <span style={{fontSize:"0.68rem",color:"var(--smoke)"}}>{entry.time}</span>
+                    </div>
+                    <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.5}}>{entry.text}</div>
+                  </div>
+                  <button onClick={()=>deleteFireEntry(entry.id)} style={{background:"none",border:"none",color:"var(--smoke)",cursor:"pointer",fontSize:"1rem",padding:"0 4px",alignSelf:"flex-start"}}>×</button>
+                </div>
+              ))
+            )}
+          </div>
+
         </div>
       )}
 
@@ -401,6 +408,108 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
             <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
               {saved&&<span className="save-confirm">✓ Saved</span>}
               {(dirty||!hasTodayAudit)&&<button className="btn btn-primary" onClick={saveAudit}>Save</button>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── RHYTHM ── */}
+      {pillar === "rhythm" && (
+        <div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div className="card-title">🔄 Routine Check-in</div>
+                <div className="card-sub" style={{marginTop:2}}>A full review across all four pillars — Spark, SYSTEMS, AIR, and ASHES.</div>
+              </div>
+              <select value={rhythmSettings.rhythm||"Weekly"} onChange={e=>saveRhythm("rhythm",e.target.value)}
+                style={{width:"auto",minWidth:140}}>
+                {["Weekly","Monthly","Quarterly","Annually"].map(o=><option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Spark questions */}
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:4}}>🔥 Spark</div>
+            <div className="card-sub" style={{marginBottom:12}}>Rate each 1–5. More fire = stronger alignment.</div>
+            {AUDIT_QUESTIONS.spark.map(q=>(
+              <div key={q.id} className="audit-question">
+                <div className="audit-q"><span>{q.p} — </span>{q.q}</div>
+                <FireRating value={localScores[q.id]||0} onChange={v=>handleScore(q.id,v)} />
+              </div>
+            ))}
+          </div>
+
+          {/* SYSTEMS questions */}
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:4}}>⚙️ SYSTEMS</div>
+            <div className="card-sub" style={{marginBottom:12}}>Rate each 1–5. More fire = stronger systems.</div>
+            {AUDIT_QUESTIONS.systems.map(q=>(
+              <div key={q.id} className="audit-question">
+                <div className="audit-q"><span>{q.p} — </span>{q.q}</div>
+                <FireRating value={localScores[q.id]||0} onChange={v=>handleScore(q.id,v)} />
+              </div>
+            ))}
+          </div>
+
+          {/* AIR questions */}
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:4}}>💨 AIR</div>
+            <div className="card-sub" style={{marginBottom:12}}>Rate each 1–10. How consistently are you tending the fire?</div>
+            {[
+              {id:"ai1",q:"I regularly audit the health of my fire — not just activity, but actual impact."},
+              {id:"ai2",q:"I intentionally invest in what the season is asking of me."},
+              {id:"ai3",q:"I build in structured time to reflect on what the fire has taught me."},
+              {id:"ai4",q:"I catch drift early — before small misalignments become large problems."},
+              {id:"ai5",q:"My rhythms of tending the fire are consistent, not just reactive."},
+            ].map(q=>{
+              const val=localScores[q.id]||0;
+              const labels={1:"Never",2:"Rarely",3:"Rarely",4:"Sometimes",5:"Sometimes",6:"Often",7:"Often",8:"Consistently",9:"Consistently",10:"Always"};
+              return (
+                <div key={q.id} className="audit-question" style={{marginBottom:20}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                    <div className="audit-q" style={{margin:0,flex:1,paddingRight:12}}>{q.q}</div>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",minWidth:60}}>
+                      <div style={{fontSize:"1.2rem",fontWeight:700,color:"#2A9D8F"}}>{val||"—"}</div>
+                      <div style={{fontSize:"0.65rem",color:"var(--smoke)"}}>{val?labels[val]:""}</div>
+                    </div>
+                  </div>
+                  <input type="range" min={1} max={10} value={val||5}
+                    onChange={e=>handleScore(q.id,parseInt(e.target.value))}
+                    onMouseDown={()=>{if(!val)handleScore(q.id,5);}}
+                    style={{width:"100%",accentColor:"#2A9D8F"}} />
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.7rem",color:"var(--smoke)",marginTop:2}}>
+                    <span>1 — Never</span><span>10 — Always</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ASHES questions */}
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:4}}>💀 ASHES</div>
+            <div style={{marginTop:8,marginBottom:12,padding:"0.6rem 0.9rem",background:"rgba(232,89,60,0.08)",borderRadius:8,fontSize:"0.82rem",color:"var(--fog)",lineHeight:1.5}}>
+              Rate how strongly each burnout symptom is present. <strong style={{color:"var(--ember-light)"}}>More fire = more severe. Lower is healthier.</strong>
+            </div>
+            {ASHES.map(q=>(
+              <div key={q.id} className="audit-question">
+                <div className="audit-q">
+                  <span style={{background:"rgba(232,89,60,0.15)",padding:"1px 7px",borderRadius:4,marginRight:6,fontSize:"0.72rem",color:"var(--ember-light)"}}>{q.p}</span>
+                  {q.q}
+                </div>
+                <FireRating value={localScores[q.id]||0} onChange={v=>handleScore(q.id,v)} inverted={true} />
+              </div>
+            ))}
+          </div>
+
+          {/* Save */}
+          <div className="card">
+            <hr className="divider"/>
+            <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
+              <span style={{fontSize:"0.78rem",color:"var(--smoke)"}}>Saves to profile + history</span>
+              <button className="btn btn-primary" onClick={saveAudit}>💾 Save Rhythm Check-in</button>
             </div>
           </div>
         </div>
