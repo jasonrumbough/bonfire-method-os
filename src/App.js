@@ -132,6 +132,34 @@ export default function App() {
         }
       }
       setDataLoading(false);
+      // Welcome modal — once per day
+      try {
+        const _today = new Date().toISOString().split("T")[0];
+        const _stored = localStorage.getItem("bonfire_welcome_" + _today);
+        if (!_stored) {
+          setShowWelcome(true);
+          localStorage.setItem("bonfire_welcome_" + _today, "1");
+          // Generate AI message
+          setWelcomeLoading(true);
+          const _loadedData = remote && Object.keys(remote).length > 0 ? remote : (local || {});
+          const _scores = _loadedData.auditScores || {};
+          const _avg = Object.values(_scores).filter(v=>v>0).reduce((a,b)=>a+b,0) / (Object.values(_scores).filter(v=>v>0).length||1);
+          const _stmt = _loadedData.sparkStatement || "";
+          const _todayDone = !!(_loadedData.allAudits||{})[_today];
+          const _prompt = "You are a warm, direct leadership coach. In 1-2 sentences, greet this leader and give them a specific prompt. " +
+            (_todayDone ? "They completed today's check-in. Acknowledge and offer a focus thought." : "They have NOT done today's check-in. Encourage them to do it now.") +
+            (_stmt ? " Their spark: \"" + _stmt + "\"." : "") + " Score: " + (_avg||0).toFixed(1) + "/5. Be direct, not generic.";
+          fetch(SUPABASE_URL + '/functions/v1/coach', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+            body:JSON.stringify({messages:[{role:'user',content:_prompt}],system:'Respond in 1-2 sentences only. No formatting.'})
+          }).then(r=>r.json()).then(rd=>{
+            const msg = rd.content?.[0]?.text || "";
+            if (msg) setWelcomeMsg(msg);
+            setWelcomeLoading(false);
+          }).catch(()=>setWelcomeLoading(false));
+        }
+      } catch(e) { console.error(e); }
     })();
   }, [session?.user?.id]);
 
@@ -264,7 +292,7 @@ export default function App() {
           <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:420,textAlign:"center"}}>
             <div style={{fontSize:"2rem",marginBottom:8}}>🔥</div>
             <div style={{fontFamily:"var(--font-display)",fontSize:"1.4rem",color:"var(--ember)",marginBottom:8}}>
-              Welcome back{userData?.spark?.target ? ", " + (session?.user?.email?.split("@")[0] || "") : ""}
+              Welcome back{data?.spark?.target ? ", " + (session?.user?.email?.split("@")[0] || "") : ""}
             </div>
             <div style={{fontSize:"0.875rem",color:"var(--fog)",lineHeight:1.7,marginBottom:"1.5rem"}}>
               {welcomeMsg || "Ready to tend your fire today?"}
