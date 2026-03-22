@@ -3,6 +3,7 @@ import { useState } from "react";
 import { SYSTEMS, AUDIT_QUESTIONS } from "../utils/data";
 import { RadarChart, LineChart } from "../components/Charts";
 import HealthRing from "../components/HealthRing";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../utils/supabase";
 
 const todayKey = () => new Date().toISOString().split("T")[0];
 const SYS_AUDIT_MAP = { structure:"sy1", yield:"sy2", support:"sy3", time:"sy4", energy:"sy5", money:"sy6", story:"sy7" };
@@ -53,6 +54,26 @@ export default function Dashboard({ data, update, setPage }) {
       const rd = await r.json();
       setDashSummary(rd.content?.[0]?.text||'');
     } catch(e){ console.error(e); }
+    setDashSummaryLoading(false);
+  };
+
+  const sendDailySummary = async () => {
+    if (!dashSummary) return;
+    setDashSummaryLoading(true);
+    try {
+      const userEmail = data.email || '';
+      const userName = data.spark?.target ? 'Leader' : 'Friend';
+      await fetch(SUPABASE_URL+'/functions/v1/notify', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+        body:JSON.stringify({
+          email: userEmail, name: userName, type:'daily_summary',
+          summary: dashSummary,
+          subject: 'Your Daily Bonfire Summary — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}),
+        })
+      });
+      alert('Summary sent to your email!');
+    } catch(e){ console.error(e); alert('Could not send email.'); }
     setDashSummaryLoading(false);
   };
 
@@ -200,6 +221,14 @@ export default function Dashboard({ data, update, setPage }) {
         {dashSummary ? (
           <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.85,whiteSpace:"pre-wrap"}}>{dashSummary}</div>
         ) : (
+          {dashSummary && (
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
+              <button className="btn btn-ghost btn-sm" onClick={sendDailySummary}
+                style={{fontSize:"0.75rem",color:"#2A9D8F",borderColor:"rgba(42,157,143,0.4)"}}>
+                📧 Send to Email
+              </button>
+            </div>
+          )}
           <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get your personalized coaching summary.</div>
         )}
       </div>
@@ -222,7 +251,7 @@ export default function Dashboard({ data, update, setPage }) {
           return (
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.5rem"}}>
               {res.focus_area && res.focus_thought && (
-                <div className="card ember-glow" style={{margin:0}}>
+                <div className="card ember-glow">
                   <div style={{fontSize:"0.62rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Today's Focus — {res.focus_area}</div>
                   <div style={{fontSize:"0.9rem",color:"var(--cream)",lineHeight:1.6}}>{res.focus_thought}</div>
                 </div>
@@ -324,7 +353,7 @@ export default function Dashboard({ data, update, setPage }) {
           if (!cached) return null;
           const {resources, scripture} = JSON.parse(cached);
           return (
-            <div className="two-col" style={{marginBottom:"1.5rem"}}>
+            <div style={{marginBottom:"1.5rem",display:"flex",flexDirection:"column",gap:"1rem"}}>
               {resources?.focus_area && (
                 <div className="card ember-glow" style={{margin:0}}>
                   <div style={{fontSize:"0.62rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Today's Focus</div>
@@ -333,7 +362,7 @@ export default function Dashboard({ data, update, setPage }) {
                 </div>
               )}
               {scripture && (
-                <div className="card" style={{margin:0,background:"rgba(42,157,143,0.06)",border:"1px solid rgba(42,157,143,0.2)"}}>
+                <div className="card" style={{background:"rgba(42,157,143,0.06)",border:"1px solid rgba(42,157,143,0.2)"}}>
                   <div style={{fontSize:"0.62rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Scripture</div>
                   <div style={{fontFamily:"var(--font-display)",fontSize:"0.85rem",color:"var(--pale)",lineHeight:1.5,fontStyle:"italic",marginBottom:4}}>"{scripture.text}"</div>
                   <div style={{fontSize:"0.72rem",color:"#2A9D8F"}}>— {scripture.reference}</div>
