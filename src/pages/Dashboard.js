@@ -185,54 +185,6 @@ export default function Dashboard({ data, update, setPage }) {
         {metrics.map(m => (
           <div key={m.label} className="metric-card">
             <div className="metric-value" style={{ color:m.color }}>{m.val}</div>
-
-      {/* Daily Focus */}
-      {dashFocus && (
-        <div className="card ember-glow" style={{marginBottom:"1rem"}}>
-          <div style={{fontSize:"0.65rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>
-            Today's Focus — {dashFocus.focus_area}
-          </div>
-          <div style={{fontSize:"0.95rem",color:"var(--cream)",lineHeight:1.6}}>{dashFocus.headline}</div>
-        </div>
-      )}
-
-      {/* Scripture */}
-      {dashScripture && (
-        <div className="card" style={{marginBottom:"1rem",background:"rgba(42,157,143,0.06)",border:"1px solid rgba(42,157,143,0.2)"}}>
-          <div style={{fontSize:"0.65rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Scripture</div>
-          <div style={{fontFamily:"var(--font-display)",fontSize:"0.9rem",color:"var(--pale)",lineHeight:1.6,marginBottom:4}}>"{dashScripture.text}"</div>
-          <div style={{fontSize:"0.78rem",color:"#2A9D8F",fontWeight:600,marginBottom:6}}>— {dashScripture.reference}</div>
-          <div style={{fontSize:"0.8rem",color:"var(--fog)",lineHeight:1.6}}>{dashScripture.application}</div>
-        </div>
-      )}
-
-      {/* Generate Summary */}
-      <div className="card" style={{marginBottom:"1rem"}}>
-        <div className="card-header">
-          <div>
-            <div className="card-title">Coaching Summary</div>
-            <div className="card-sub" style={{marginTop:2}}>AI-generated based on your current scores</div>
-          </div>
-          <button className="btn btn-ghost btn-sm" onClick={generateDashSummary} disabled={dashSummaryLoading}
-            style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
-            {dashSummaryLoading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "Generate"}
-          </button>
-        </div>
-        {dashSummary ? (
-          <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.85,whiteSpace:"pre-wrap"}}>{dashSummary}</div>
-        ) : (
-          <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get your daily coaching insight.</div>
-        )}
-        {dashSummary && (
-          <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
-            <button className="btn btn-ghost btn-sm" onClick={sendDailySummary}
-              style={{fontSize:"0.75rem",color:"#2A9D8F",borderColor:"rgba(42,157,143,0.4)"}}>
-              📧 Send to Email
-            </button>
-          </div>
-        )}
-        )}
-      </div>
             <div className="metric-label">{m.label}</div>
             <div className="progress-bar" style={{ marginTop:8 }}>
               <div className="progress-fill" style={{ width:Math.min((parseFloat(m.val) / (m.max||5) * 100),100) + "%", background:m.color }} />
