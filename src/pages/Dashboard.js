@@ -48,7 +48,7 @@ export default function Dashboard({ data, update, setPage }) {
       const scores = data.auditScores||{};
       const stmt = data.sparkStatement||'';
       const scoreStr = Object.entries(scores).filter(([,v])=>v>0).map(([k,v])=>k+':'+v).join(', ');
-      const prompt = 'Write a coaching summary for this leader. Spark: "'+stmt+'". Scores: '+scoreStr+'. Format: What's Burning Well: [2 sentences]. What Needs Tending: [2 sentences]. Your Single Most Important Next Step: [1 sentence].';
+       const prompt = `Write a coaching summary for this leader. Spark: "${stmt}". Scores: ${scoreStr}. Format: Whats Burning Well: [2 sentences]. What Needs Tending: [2 sentences]. Your Single Most Important Next Step: [1 sentence].`;
       const r = await fetch(SUPABASE_URL+'/functions/v1/coach',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({messages:[{role:'user',content:prompt}],system:'Be direct and specific. Use the actual scores provided.'})});
       const rd = await r.json();
       setDashSummary(rd.content?.[0]?.text||'');
