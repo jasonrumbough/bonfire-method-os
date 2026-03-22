@@ -5,16 +5,27 @@ const TAGS = ["general", "spark", "systems", "air", "coaching", "idea", "scriptu
 const TAG_PILL = { general: "pill-smoke", spark: "pill-ember", systems: "pill-gold", air: "pill-teal", coaching: "pill-blue", idea: "pill-gold", scripture: "pill-gold", question: "pill-blue", win: "pill-teal", challenge: "pill-ember" };
 
 export default function NotesPage({ data, update }) {
-  const notes = data.notes || [];
+  const notes = Array.isArray(data.notes) ? data.notes : [];
+  const [filters, setFilters] = useState(['all']);
+  const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title: "", content: "", tag: "general", image: null });
-  const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const fileRef = useRef();
+  const [form, setForm] = useState({ title: '', content: '', tag: 'general', image: null });
+  const imgRef = useRef(null);
 
-  const openNew = () => { setEditing(null); setForm({ title: "", content: "", tag: "general", image: null }); setModal(true); };
-  const openEdit = (note) => { setEditing(note.id); setForm({ title: note.title || "", content: note.content, tag: note.tag, image: note.image || null }); setModal(true); };
+  const toggleFilter = (tag) => {
+    if (tag === 'all') { setFilters(['all']); return; }
+    setFilters(prev => {
+      const arr = Array.isArray(prev) ? prev : ['all'];
+      const without = arr.filter(t => t !== 'all');
+      const has = without.includes(tag);
+      const next = has ? without.filter(t => t !== tag) : [...without, tag];
+      return next.length === 0 ? ['all'] : next;
+    });
+  };
+
+  const openNew = () => { setEditing(null); setForm({ title: '', content: '', tag: 'general', image: null }); setModal(true); };
+  const openEdit = (note) => { setEditing(note.id); setForm({ title: note.title||'', content: note.content||'', tag: note.tag||'general', image: note.image||null }); setModal(true); };
 
   const save = () => {
     if (!form.content.trim() && !form.image) return;
