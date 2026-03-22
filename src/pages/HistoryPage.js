@@ -4,7 +4,8 @@ import ScoreSlider from "../components/ScoreSlider";
 
 export default function HistoryPage({ data, update }) {
   const history = data.history || [];
-  const [modal, setModal] = useState(false);
+    const [selectedEntry, setSelectedEntry] = useState(null);
+const [modal, setModal] = useState(false);
   const [editIdx, setEditIdx] = useState(null);
   const [form, setForm] = useState({ date: "", note: "", overall: 3 });
 
@@ -94,6 +95,27 @@ export default function HistoryPage({ data, update }) {
             <button className="btn btn-primary" onClick={save}>Save</button>
           </div>
         </Modal>
+      )}
+      {selectedEntry && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}} onClick={()=>setSelectedEntry(null)}>
+          <div style={{background:"var(--coal)",borderRadius:12,padding:"1.5rem",maxWidth:500,width:"100%",maxHeight:"80vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
+              <div style={{fontFamily:"var(--font-display)",fontSize:"1.1rem",color:"var(--cream)"}}>{new Date(selectedEntry.date).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}</div>
+              <button onClick={()=>setSelectedEntry(null)} style={{background:"none",border:"none",color:"var(--smoke)",cursor:"pointer",fontSize:"1.2rem"}}>✕</button>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:"1rem"}}>
+              {[["Overall Score",selectedEntry.overall+"/10"],["Spark",selectedEntry.spark+"/5"],["Structure",selectedEntry.structure+"/5"],["Energy",selectedEntry.energy+"/5"],["Support",selectedEntry.support+"/5"],["Time",selectedEntry.time+"/5"],["Money",selectedEntry.money+"/5"],["Story",selectedEntry.story+"/5"]].filter(([,v])=>v&&!v.startsWith("undefined")).map(([label,val])=>(
+                <div key={label} style={{padding:"8px 12px",background:"var(--ash)",borderRadius:8}}>
+                  <div style={{fontSize:"0.62rem",color:"var(--smoke)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:2}}>{label}</div>
+                  <div style={{fontSize:"0.95rem",color:"var(--pale)",fontWeight:600}}>{val}</div>
+                </div>
+              ))}
+            </div>
+            {selectedEntry.wins && <div style={{marginBottom:"1rem"}}><div style={{fontSize:"0.65rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Wins</div><div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.6}}>{selectedEntry.wins}</div></div>}
+            {selectedEntry.challenges && <div style={{marginBottom:"1rem"}}><div style={{fontSize:"0.65rem",color:"#C9922F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Challenges</div><div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.6}}>{selectedEntry.challenges}</div></div>}
+            {selectedEntry.lessons && <div><div style={{fontSize:"0.65rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Lessons</div><div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.6}}>{selectedEntry.lessons}</div></div>}
+          </div>
+        </div>
       )}
     </div>
   );
