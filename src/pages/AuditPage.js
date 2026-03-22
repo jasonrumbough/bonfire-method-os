@@ -47,7 +47,7 @@ function FireBar({ value, max = 5 }) {
   );
 }
 
-export default function AuditPage({ data, update, initialTab = "overview" }) {
+export default function AuditPage({ data, update, initialTab = "overview", setPage }) {
   const [pillar, setPillar] = useState(initialTab);
   const [saved, setSaved] = useState(false);
   const [started, setStarted] = useState(false);
@@ -174,7 +174,7 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
         {TABS.map(t => (
           <button key={t.key}
             className={"pillar-tab "+(pillar===t.key?(t.ac||"active-systems"):"")}
-            onClick={()=>setPillar(t.key)}>
+            onClick={()=>{ if(t.key==="notes" && setPage){ setPage("notes"); } else { setPillar(t.key); } }}>
             {t.label}
           </button>
         ))}
