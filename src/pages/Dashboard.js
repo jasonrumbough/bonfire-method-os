@@ -231,6 +231,14 @@ export default function Dashboard({ data, update, setPage }) {
           )}
           <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get your personalized coaching summary.</div>
         )}
+        {dashSummary && (
+          <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
+            <button className="btn btn-ghost btn-sm" onClick={sendDailySummary}
+              style={{fontSize:"0.75rem",color:"#2A9D8F",borderColor:"rgba(42,157,143,0.4)"}}>
+              📧 Send to Email
+            </button>
+          </div>
+        )}
       </div>
             <div className="metric-label">{m.label}</div>
             <div className="progress-bar" style={{ marginTop:8 }}>
