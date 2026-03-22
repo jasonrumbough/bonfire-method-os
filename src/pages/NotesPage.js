@@ -39,7 +39,7 @@ export default function NotesPage({ data, update }) {
     reader.readAsDataURL(file);
   };
 
-  const filtered = notes
+  const filtered = (Array.isArray(notes) ? notes : [])
     .filter(n => filters.includes('all') || filters.includes(n.tag))
     .filter(n => !search || n.title?.toLowerCase().includes(search.toLowerCase()) || n.content?.toLowerCase().includes(search.toLowerCase()) || n.tag?.includes(search.toLowerCase()));
 
