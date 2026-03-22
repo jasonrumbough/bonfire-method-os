@@ -25,6 +25,8 @@ const TABS = [
   { key:"spark",     label:"Spark",   ac:"active-spark" },
   { key:"systems",   label:"SYSTEMS", ac:"active-systems" },
   { key:"rhythm",    label:"Rhythm",  ac:"active-systems" },
+  { key:"monthly",   label:"Monthly",  ac:"active-systems" },
+  { key:"quarterly", label:"Quarterly", ac:"active-systems" },
 ];
 
 const SYS_AUDIT_MAP = { structure:"sy1", yield:"sy2", support:"sy3", time:"sy4", energy:"sy5", money:"sy6", story:"sy7" };
@@ -48,6 +50,7 @@ function FireBar({ value, max = 5 }) {
 }
 
 export default function AuditPage({ data, update, initialTab = "overview", setPage }) {
+  const [rhythmJournal, setRhythmJournal] = React.useState(data.rhythmJournal || {});
   const [pillar, setPillar] = useState(initialTab);
   const [saved, setSaved] = useState(false);
   const [started, setStarted] = useState(false);
@@ -455,8 +458,8 @@ export default function AuditPage({ data, update, initialTab = "overview", setPa
           <div className="card" style={{marginBottom:"1rem"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
-                <div className="card-title">🔄 Routine Check-in</div>
-                <div className="card-sub" style={{marginTop:2}}>A full review across all four pillars — Spark, SYSTEMS, AIR, and ASHES.</div>
+                <div className="card-title">🔄 Tend Check-in</div>
+                <div className="card-sub" style={{marginTop:2}}>A full review across all four pillars — save when complete — Spark, SYSTEMS, AIR, and ASHES.</div>
               </div>
               <select value={rhythmSettings.rhythm||"Weekly"} onChange={e=>saveRhythm("rhythm",e.target.value)}
                 style={{width:"auto",minWidth:140}}>
@@ -546,6 +549,67 @@ export default function AuditPage({ data, update, initialTab = "overview", setPa
             <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
               <span style={{fontSize:"0.78rem",color:"var(--smoke)"}}>Saves to profile + history</span>
               <button className="btn btn-primary" onClick={saveAudit}>💾 Save Rhythm Check-in</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ── MONTHLY TEND ── */}
+      {pillar === "monthly" && (
+        <div>
+          <div className="card" style={{marginBottom:"1rem",background:"linear-gradient(135deg,rgba(42,157,143,0.08),transparent)"}}>
+            <div className="card-title" style={{marginBottom:4}}>📅 Monthly Tend</div>
+            <div className="card-sub">Step back and examine the patterns. What did this month reveal?</div>
+          </div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:12}}>Momentum</div>
+            <div className="form-group"><label>Is the organization/mission moving toward its goals, or just maintaining activity?</label><textarea rows={3} value={rhythmJournal?.monthly_momentum||""} onChange={e=>setRhythmJournal(j=>({...j,monthly_momentum:e.target.value}))} className="textarea" placeholder="Reflect on true progress vs. activity..." /></div>
+            <div className="form-group"><label>What wins deserve to be celebrated this month?</label><textarea rows={3} value={rhythmJournal?.monthly_wins||""} onChange={e=>setRhythmJournal(j=>({...j,monthly_wins:e.target.value}))} className="textarea" placeholder="Name specific wins..." /></div>
+          </div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:12}}>Capacity</div>
+            <div className="form-group"><label>Where is capacity stretched too thin? What needs to be redistributed?</label><textarea rows={3} value={rhythmJournal?.monthly_capacity||""} onChange={e=>setRhythmJournal(j=>({...j,monthly_capacity:e.target.value}))} className="textarea" placeholder="Identify where the load is too heavy..." /></div>
+            <div className="form-group"><label>What did you learn about your energy and limits this month?</label><textarea rows={3} value={rhythmJournal?.monthly_energy||""} onChange={e=>setRhythmJournal(j=>({...j,monthly_energy:e.target.value}))} className="textarea" placeholder="Be honest about capacity..." /></div>
+          </div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:12}}>Clarity</div>
+            <div className="form-group"><label>Is the mission still clear? Where has vision blurred under daily pressure?</label><textarea rows={3} value={rhythmJournal?.monthly_clarity||""} onChange={e=>setRhythmJournal(j=>({...j,monthly_clarity:e.target.value}))} className="textarea" placeholder="Reconnect to the why..." /></div>
+            <div className="form-group"><label>What one thing, if clarified this month, would unlock the most momentum?</label><textarea rows={3} value={rhythmJournal?.monthly_one||""} onChange={e=>setRhythmJournal(j=>({...j,monthly_one:e.target.value}))} className="textarea" placeholder="Name the single unlock..." /></div>
+          </div>
+          <div className="card">
+            <div style={{display:"flex",justifyContent:"flex-end"}}>
+              <button className="btn btn-primary" onClick={()=>{update({...data,rhythmJournal:{...(data.rhythmJournal||{}),...rhythmJournal}});alert('Monthly Tend saved!');}}>💾 Save Monthly Tend</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── QUARTERLY TEND ── */}
+      {pillar === "quarterly" && (
+        <div>
+          <div className="card" style={{marginBottom:"1rem",background:"linear-gradient(135deg,rgba(201,146,47,0.08),transparent)"}}>
+            <div className="card-title" style={{marginBottom:4}}>🗓 Quarterly Tend</div>
+            <div className="card-sub">Step fully away from daily operations. Ask the bigger questions about direction.</div>
+          </div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:12}}>Strategic Progress</div>
+            <div className="form-group"><label>Are long-term goals advancing, or is the organization trapped in short-term execution?</label><textarea rows={3} value={rhythmJournal?.quarterly_strategy||""} onChange={e=>setRhythmJournal(j=>({...j,quarterly_strategy:e.target.value}))} className="textarea" placeholder="Evaluate against 90-day goals..." /></div>
+            <div className="form-group"><label>What should start, stop, or continue this quarter?</label><textarea rows={3} value={rhythmJournal?.quarterly_ssc||""} onChange={e=>setRhythmJournal(j=>({...j,quarterly_ssc:e.target.value}))} className="textarea" placeholder="Start / Stop / Continue..." /></div>
+          </div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:12}}>Leadership Health</div>
+            <div className="form-group"><label>Are the people carrying the mission healthy enough to sustain it?</label><textarea rows={3} value={rhythmJournal?.quarterly_health||""} onChange={e=>setRhythmJournal(j=>({...j,quarterly_health:e.target.value}))} className="textarea" placeholder="Honest assessment of the team's fire..." /></div>
+            <div className="form-group"><label>Where are early signs of burnout appearing in yourself or your team?</label><textarea rows={3} value={rhythmJournal?.quarterly_burnout||""} onChange={e=>setRhythmJournal(j=>({...j,quarterly_burnout:e.target.value}))} className="textarea" placeholder="Name what you see..." /></div>
+          </div>
+          <div className="card" style={{marginBottom:"1rem"}}>
+            <div className="card-title" style={{marginBottom:12}}>System Strength</div>
+            <div className="form-group"><label>Are the seven SYSTEMS (Structure, Yield, Support, Time, Energy, Money, Story) still working?</label><textarea rows={3} value={rhythmJournal?.quarterly_systems||""} onChange={e=>setRhythmJournal(j=>({...j,quarterly_systems:e.target.value}))} className="textarea" placeholder="Evaluate each system honestly..." /></div>
+            <div className="form-group"><label>What one structural adjustment would most strengthen the fire for next quarter?</label><textarea rows={3} value={rhythmJournal?.quarterly_one||""} onChange={e=>setRhythmJournal(j=>({...j,quarterly_one:e.target.value}))} className="textarea" placeholder="Name the single structural change..." /></div>
+          </div>
+          <div className="card">
+            <div style={{display:"flex",justifyContent:"flex-end"}}>
+              <button className="btn btn-primary" onClick={()=>{update({...data,rhythmJournal:{...(data.rhythmJournal||{}),...rhythmJournal}});alert('Quarterly Tend saved!');}}>💾 Save Quarterly Tend</button>
             </div>
           </div>
         </div>
