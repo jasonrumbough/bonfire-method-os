@@ -40,7 +40,7 @@ export default function NotesPage({ data, update }) {
   };
 
   const filtered = notes
-    .filter(n => filter === "all" || n.tag === filter)
+    .filter(n => filters.includes('all') || filters.includes(n.tag))
     .filter(n => !search || n.title?.toLowerCase().includes(search.toLowerCase()) || n.content?.toLowerCase().includes(search.toLowerCase()) || n.tag?.includes(search.toLowerCase()));
 
   return (
@@ -61,8 +61,8 @@ export default function NotesPage({ data, update }) {
       {/* Tag filters */}
       <div style={{ display: "flex", gap: 6, marginBottom: "1.5rem", flexWrap: "wrap" }}>
         {["all", ...TAGS].map(t => (
-          <button key={t} onClick={() => setFilter(t)}
-            style={{ padding: "4px 12px", borderRadius: 20, border: "1px solid " + (filter === t ? "var(--ember)" : "var(--ash)"), background: filter === t ? "rgba(232,89,60,0.15)" : "transparent", color: filter === t ? "var(--ember-light)" : "var(--smoke)", cursor: "pointer", fontSize: "0.75rem", fontFamily: "var(--font-body)", textTransform: "capitalize" }}>
+          <button key={t} onClick={() => toggleFilter(t)}
+            style={{ padding: "4px 12px", borderRadius: 20, border: "1px solid " + (filters.includes( t ? "var(--ember)" : "var(--ash)"), background: filters.includes( t ? "rgba(232,89,60,0.15)" : "transparent", color: filters.includes( t ? "var(--ember-light)" : "var(--smoke)", cursor: "pointer", fontSize: "0.75rem", fontFamily: "var(--font-body)", textTransform: "capitalize" }}>
             {t}
           </button>
         ))}
@@ -71,7 +71,7 @@ export default function NotesPage({ data, update }) {
       {filtered.length === 0 && (
         <div className="card" style={{ textAlign: "center", padding: "2rem", color: "var(--smoke)" }}>
           <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📓</div>
-          {search ? "No notes matching your search." : filter === "all" ? "No notes yet. Capture your first insight." : "No " + filter + " notes yet."}
+          {search ? "No notes matching your search." : filters.includes( "all" ? "No notes yet. Capture your first insight." : "No " + filter + " notes yet."}
         </div>
       )}
 
