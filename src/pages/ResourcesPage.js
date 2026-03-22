@@ -231,7 +231,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
       </div>
 
       {resources && (
-        <>
+        <div>
 
           {/* Scripture */}
           {scripture && (
@@ -361,7 +361,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
               No resources found for this filter.
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
