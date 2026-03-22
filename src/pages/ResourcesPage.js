@@ -220,6 +220,8 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", color:"var(--cream)", marginBottom:4 }}>
             Resources
           </div>
+        </div>
+      </div>
 
       {resources && (
         <>
