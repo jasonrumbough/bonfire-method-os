@@ -107,6 +107,7 @@ export default function CoachPortal() {
   const [selected, setSelected] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [generatingSummary, setGeneratingSummary] = useState(null);
+  const [sendingSummary, setSendingSummary] = useState(null);
   const [generatingTP, setGeneratingTP] = useState(null);
   const [generatingNotes, setGeneratingNotes] = useState(null);
   const [summaries, setSummaries] = useState({});
@@ -241,6 +242,20 @@ export default function CoachPortal() {
       headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+token,"Prefer":"return=minimal"},
       body:JSON.stringify({ [field]: value })
     });
+  };
+
+  const sendSummary = async (client, summaryText) => {
+    if (!client.email || !summaryText) return;
+    setSendingSummary(client.id);
+    try {
+      await fetch(SUPABASE_URL + '/functions/v1/notify', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
+        body:JSON.stringify({ user_id: client.id, email: client.email, name: client.name, summary: summaryText, type:'daily_summary' })
+      });
+      setSendingSummary(null);
+      alert('Summary sent to ' + client.name);
+    } catch(e) { console.error(e); setSendingSummary(null); }
   };
 
   const generateSummary = async (client) => {
@@ -529,6 +544,11 @@ export default function CoachPortal() {
                 <div className="card-title">Coaching Summary</div>
                 <div style={{fontSize:"0.72rem",color:"var(--smoke)",marginTop:2}}>Shared with client · CTA section blurred to prompt coaching</div>
               </div>
+              <button className="btn btn-ghost btn-sm" onClick={()=>generateSummary(selected)}
+                disabled={generatingSummary}
+                style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
+                {generatingSummary ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↺ Regenerate"}
+              </button>
               {generatingSummary===selected.id&&<span style={{fontSize:"0.72rem",color:"var(--smoke)",display:"flex",alignItems:"center",gap:6}}><span className="spinner" style={{width:10,height:10}}/> Generating...</span>}
             </div>
             {generatingSummary===selected.id&&!existingSummary&&(
@@ -537,6 +557,15 @@ export default function CoachPortal() {
             {existingSummary&&(
               <TextBlock text={existingSummary} style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.85}}/>
             )}
+{existingSummary&&(
+  <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
+    <button className="btn btn-primary btn-sm" onClick={()=>sendSummary(selected,existingSummary)}
+      disabled={sendingSummary===selected.id}
+      style={{fontSize:"0.75rem"}}>
+      {sendingSummary===selected.id?<><span className="spinner" style={{width:10,height:10}}/> Sending...</>:"📧 Send to Client"}
+    </button>
+  </div>
+)}
             {!existingSummary&&generatingSummary!==selected.id&&(
               <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic",padding:"1rem",background:"var(--ash)",borderRadius:8}}>
                 {isDemoMode?"Summary loaded from demo data.":"Generating automatically..."}
