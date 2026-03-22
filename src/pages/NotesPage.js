@@ -62,7 +62,7 @@ export default function NotesPage({ data, update }) {
       <div style={{ display: "flex", gap: 6, marginBottom: "1.5rem", flexWrap: "wrap" }}>
         {["all", ...TAGS].map(t => (
           <button key={t} onClick={() => toggleFilter(t)}
-            style={{ padding: "4px 12px", borderRadius: 20, border: "1px solid " + (filters.includes( t ? "var(--ember)" : "var(--ash)"), background: filters.includes( t ? "rgba(232,89,60,0.15)" : "transparent", color: filters.includes( t ? "var(--ember-light)" : "var(--smoke)", cursor: "pointer", fontSize: "0.75rem", fontFamily: "var(--font-body)", textTransform: "capitalize" }}>
+            style={{ padding: "4px 12px", borderRadius: 20, border: "1px solid " + (filters.includes(t) ? "var(--ember)" : "var(--ash)"), background: filters.includes(t) ? "rgba(232,89,60,0.15)" : "transparent", color: filters.includes(t) ? "var(--ember-light)" : "var(--smoke)", cursor: "pointer", fontSize: "0.75rem", fontFamily: "var(--font-body)", textTransform: "capitalize" }}>
             {t}
           </button>
         ))}
