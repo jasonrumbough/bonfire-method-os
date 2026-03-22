@@ -10,7 +10,51 @@ const SYS_AUDIT_MAP = { structure:"sy1", yield:"sy2", support:"sy3", time:"sy4",
 
 
 export default function Dashboard({ data, update, setPage }) {
+  const [dashFocus, setDashFocus] = React.useState(null);
+  const [dashScripture, setDashScripture] = React.useState(null);
+  const [dashSummaryLoading, setDashSummaryLoading] = React.useState(false);
+  const [dashSummary, setDashSummary] = React.useState('');
+
   const [fetchingWeather, setFetchingWeather] = useState(false);
+
+  const loadDailyContent = React.useCallback(async () => {
+    const todayKey = new Date().toISOString().split('T')[0];
+    const cached = localStorage.getItem('bonfire_dash_daily_' + todayKey);
+    if (cached) { try { const p = JSON.parse(cached); setDashFocus(p.resources); setDashScripture(p.scripture); } catch(e){} return; }
+    try {
+      const scores = data.auditScores || {};
+      const stmt = data.sparkStatement || '';
+      const gaps = Object.entries(scores).filter(([,v])=>v>0).sort(([,a],[,b])=>a-b).slice(0,3).map(([k])=>k).join(', ');
+      const prompt = 'For a leader with spark: "'+stmt+'" and biggest gaps in: '+gaps+', give a JSON object: {"focus_area":"one word","headline":"one sentence focus for today","resources":[{"title":"resource name","type":"book|article|podcast|video|practice","why":"one sentence"}]} with 1 resource. Return ONLY valid JSON.';
+      const [rRes, sRes] = await Promise.all([
+        fetch(SUPABASE_URL+'/functions/v1/coach',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({messages:[{role:'user',content:prompt}],system:'Return only valid JSON.'})}),
+        fetch(SUPABASE_URL+'/functions/v1/coach',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({messages:[{role:'user',content:'Give a leadership-focused scripture verse as JSON: {"reference":"Book Ch:V","text":"passage","application":"2-3 sentences"}. Return ONLY valid JSON.'}],system:'Return only valid JSON.'})})
+      ]);
+      const [rd, sd] = await Promise.all([rRes.json(), sRes.json()]);
+      const rText = rd.content?.[0]?.text||''; const sText = sd.content?.[0]?.text||'';
+      let rf=null, sc=null;
+      try { rf = JSON.parse(rText.replace(/```json|```/g,'').trim()); } catch(e){}
+      try { sc = JSON.parse(sText.replace(/```json|```/g,'').trim()); } catch(e){}
+      setDashFocus(rf); setDashScripture(sc);
+      localStorage.setItem('bonfire_dash_daily_'+todayKey, JSON.stringify({resources:rf,scripture:sc}));
+    } catch(e){ console.error(e); }
+  }, [data.auditScores, data.sparkStatement]);
+
+  React.useEffect(()=>{ if(data.auditScores) loadDailyContent(); }, [data.auditScores]);
+
+  const generateDashSummary = async () => {
+    setDashSummaryLoading(true);
+    try {
+      const scores = data.auditScores||{};
+      const stmt = data.sparkStatement||'';
+      const scoreStr = Object.entries(scores).filter(([,v])=>v>0).map(([k,v])=>k+':'+v).join(', ');
+      const prompt = 'Write a coaching summary for this leader. Spark: "'+stmt+'". Scores: '+scoreStr+'. Format: What's Burning Well: [2 sentences]. What Needs Tending: [2 sentences]. Your Single Most Important Next Step: [1 sentence].';
+      const r = await fetch(SUPABASE_URL+'/functions/v1/coach',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({messages:[{role:'user',content:prompt}],system:'Be direct and specific. Use the actual scores provided.'})});
+      const rd = await r.json();
+      setDashSummary(rd.content?.[0]?.text||'');
+    } catch(e){ console.error(e); }
+    setDashSummaryLoading(false);
+  };
 
   const fetchWeather = () => {
     setFetchingWeather(true);
@@ -120,6 +164,45 @@ export default function Dashboard({ data, update, setPage }) {
         {metrics.map(m => (
           <div key={m.label} className="metric-card">
             <div className="metric-value" style={{ color:m.color }}>{m.val}</div>
+
+      {/* Daily Focus */}
+      {dashFocus && (
+        <div className="card ember-glow" style={{marginBottom:"1rem"}}>
+          <div style={{fontSize:"0.65rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>
+            Today's Focus — {dashFocus.focus_area}
+          </div>
+          <div style={{fontSize:"0.95rem",color:"var(--cream)",lineHeight:1.6}}>{dashFocus.headline}</div>
+        </div>
+      )}
+
+      {/* Scripture */}
+      {dashScripture && (
+        <div className="card" style={{marginBottom:"1rem",background:"rgba(42,157,143,0.06)",border:"1px solid rgba(42,157,143,0.2)"}}>
+          <div style={{fontSize:"0.65rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Scripture</div>
+          <div style={{fontFamily:"var(--font-display)",fontSize:"0.9rem",color:"var(--pale)",lineHeight:1.6,marginBottom:4}}>"{dashScripture.text}"</div>
+          <div style={{fontSize:"0.78rem",color:"#2A9D8F",fontWeight:600,marginBottom:6}}>— {dashScripture.reference}</div>
+          <div style={{fontSize:"0.8rem",color:"var(--fog)",lineHeight:1.6}}>{dashScripture.application}</div>
+        </div>
+      )}
+
+      {/* Generate Summary */}
+      <div className="card" style={{marginBottom:"1rem"}}>
+        <div className="card-header">
+          <div>
+            <div className="card-title">Coaching Summary</div>
+            <div className="card-sub" style={{marginTop:2}}>AI-generated based on your current scores</div>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={generateDashSummary} disabled={dashSummaryLoading}
+            style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
+            {dashSummaryLoading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "Generate"}
+          </button>
+        </div>
+        {dashSummary ? (
+          <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.85,whiteSpace:"pre-wrap"}}>{dashSummary}</div>
+        ) : (
+          <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get your personalized coaching summary.</div>
+        )}
+      </div>
             <div className="metric-label">{m.label}</div>
             <div className="progress-bar" style={{ marginTop:8 }}>
               <div className="progress-fill" style={{ width:Math.min((parseFloat(m.val) / (m.max||5) * 100),100) + "%", background:m.color }} />
@@ -127,6 +210,34 @@ export default function Dashboard({ data, update, setPage }) {
           </div>
         ))}
       </div>
+
+
+      {/* Daily Focus + Scripture from Resources */}
+      {(()=>{
+        try {
+          const cached = localStorage.getItem('bonfire_resources');
+          if (!cached) return null;
+          const { data: res } = JSON.parse(cached);
+          if (!res) return null;
+          return (
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.5rem"}}>
+              {res.focus_area && res.focus_thought && (
+                <div className="card ember-glow" style={{margin:0}}>
+                  <div style={{fontSize:"0.62rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Today's Focus — {res.focus_area}</div>
+                  <div style={{fontSize:"0.9rem",color:"var(--cream)",lineHeight:1.6}}>{res.focus_thought}</div>
+                </div>
+              )}
+              {res.scripture && (
+                <div className="card" style={{margin:0,background:"rgba(42,157,143,0.08)",border:"1px solid rgba(42,157,143,0.2)"}}>
+                  <div style={{fontSize:"0.62rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Scripture</div>
+                  <div style={{fontFamily:"var(--font-display)",fontSize:"0.85rem",color:"var(--cream)",lineHeight:1.5,fontStyle:"italic"}}>"{res.scripture.text}"</div>
+                  <div style={{fontSize:"0.72rem",color:"#2A9D8F",marginTop:4,fontWeight:600}}>{res.scripture.reference}</div>
+                </div>
+              )}
+            </div>
+          );
+        } catch(e) { return null; }
+      })()}
 
       <div className="two-col">
         <div className="card">
@@ -204,6 +315,52 @@ export default function Dashboard({ data, update, setPage }) {
             <span style={{ color:"var(--ember-light)", cursor:"pointer" }} onClick={() => setPage("health")}>Update Health Data →</span>
           </div>
         </div>
+      </div>
+
+      {/* Daily Focus + Scripture from cached resources */}
+      {(()=>{
+        try {
+          const cached = localStorage.getItem('bonfire_resources_' + new Date().toISOString().split('T')[0]);
+          if (!cached) return null;
+          const {resources, scripture} = JSON.parse(cached);
+          return (
+            <div className="two-col" style={{marginBottom:"1.5rem"}}>
+              {resources?.focus_area && (
+                <div className="card ember-glow" style={{margin:0}}>
+                  <div style={{fontSize:"0.62rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Today's Focus</div>
+                  <div style={{fontFamily:"var(--font-display)",fontSize:"0.95rem",color:"var(--cream)",lineHeight:1.5}}>{resources.focus_area}</div>
+                  {resources.focus_insight&&<div style={{fontSize:"0.78rem",color:"var(--fog)",marginTop:4,lineHeight:1.5}}>{resources.focus_insight}</div>}
+                </div>
+              )}
+              {scripture && (
+                <div className="card" style={{margin:0,background:"rgba(42,157,143,0.06)",border:"1px solid rgba(42,157,143,0.2)"}}>
+                  <div style={{fontSize:"0.62rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Scripture</div>
+                  <div style={{fontFamily:"var(--font-display)",fontSize:"0.85rem",color:"var(--pale)",lineHeight:1.5,fontStyle:"italic",marginBottom:4}}>"{scripture.text}"</div>
+                  <div style={{fontSize:"0.72rem",color:"#2A9D8F"}}>— {scripture.reference}</div>
+                </div>
+              )}
+            </div>
+          );
+        } catch(e){ return null; }
+      })()}
+
+      {/* Generate Daily Summary */}
+      <div className="card" style={{marginBottom:"1.5rem"}}>
+        <div className="card-header">
+          <div>
+            <div className="card-title">Daily Summary</div>
+            <div className="card-sub" style={{marginTop:2}}>AI-generated coaching insight for today</div>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={generateDailySummary} disabled={genSummary}
+            style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
+            {genSummary?<><span className="spinner" style={{width:10,height:10}}/> Generating...</>:"↺ Generate"}
+          </button>
+        </div>
+        {dashSummary ? (
+          <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.8,whiteSpace:"pre-wrap"}}>{dashSummary}</div>
+        ) : (
+          <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get today's coaching insight.</div>
+        )}
       </div>
 
     </div>
