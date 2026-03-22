@@ -351,9 +351,9 @@ export default function Dashboard({ data, update, setPage }) {
             <div className="card-title">Daily Summary</div>
             <div className="card-sub" style={{marginTop:2}}>AI-generated coaching insight for today</div>
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={generateDailySummary} disabled={genSummary}
+          <button className="btn btn-ghost btn-sm" onClick={generateDashSummary} disabled={dashSummaryLoading}
             style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
-            {genSummary?<><span className="spinner" style={{width:10,height:10}}/> Generating...</>:"↺ Generate"}
+            {dashSummaryLoading?<><span className="spinner" style={{width:10,height:10}}/> Generating...</>:"↺ Generate"}
           </button>
         </div>
         {dashSummary ? (
