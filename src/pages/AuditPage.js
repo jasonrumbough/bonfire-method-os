@@ -40,9 +40,9 @@ function FireBar({ value, max = 5 }) {
   return (
     <div style={{ display:"flex", alignItems:"center", gap:3 }}>
       {[1,2,3,4,5].map(n => (
-        <span key={n} style={{ fontSize:"0.9rem", color: value >= n ? "#E8593C" : "#3D3228" }}>🔥</span>
+        <span key={n} style={{ fontSize:"0.9rem", color: (value/(max||5)*5) >= n ? "#E8593C" : "#3D3228" }}>🔥</span>
       ))}
-      <span style={{ fontSize:"0.72rem", color:"var(--smoke)", marginLeft:4 }}>{value || 0}/5</span>
+      <span style={{ fontSize:"0.72rem", color:"var(--smoke)", marginLeft:4 }}>{value || 0}/{max||5}</span>
     </div>
   );
 }
@@ -207,7 +207,7 @@ export default function AuditPage({ data, update, initialTab = "overview" }) {
                 .map(q=>(
                 <div key={q.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 10px",background:"var(--ash)",borderRadius:6}}>
                   <span style={{fontSize:"0.75rem",color:"var(--pale)"}}>{SCORE_LABELS[q.id]||q.id}</span>
-                  <FireBar value={localScores[q.id]||0} />
+                  <FireBar value={localScores[q.id]||0} max={q.id&&q.id.startsWith("ai")?10:5} />
                 </div>
               ))}
             </div>
