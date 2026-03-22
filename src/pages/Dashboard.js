@@ -221,15 +221,7 @@ export default function Dashboard({ data, update, setPage }) {
         {dashSummary ? (
           <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.85,whiteSpace:"pre-wrap"}}>{dashSummary}</div>
         ) : (
-          {dashSummary && (
-            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
-              <button className="btn btn-ghost btn-sm" onClick={sendDailySummary}
-                style={{fontSize:"0.75rem",color:"#2A9D8F",borderColor:"rgba(42,157,143,0.4)"}}>
-                📧 Send to Email
-              </button>
-            </div>
-          )}
-          <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get your personalized coaching summary.</div>
+          <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic"}}>Click Generate to get your daily coaching insight.</div>
         )}
         {dashSummary && (
           <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
@@ -238,6 +230,7 @@ export default function Dashboard({ data, update, setPage }) {
               📧 Send to Email
             </button>
           </div>
+        )}
         )}
       </div>
             <div className="metric-label">{m.label}</div>
