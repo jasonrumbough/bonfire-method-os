@@ -251,7 +251,7 @@ export default function CoachPortal() {
       await fetch(SUPABASE_URL + '/functions/v1/notify', {
         method:'POST',
         headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
-        body:JSON.stringify({ user_id: client.id, email: client.email, name: client.name, summary: summaryText, type:'daily_summary' })
+        body:JSON.stringify({ user_id: client.id, email: client.email, name: client.name, summary: summaryText, type:'daily_summary', spark_statement: client.sparkStatement || '' })
       });
       setSendingSummary(null);
       alert('Summary sent to ' + client.name);
