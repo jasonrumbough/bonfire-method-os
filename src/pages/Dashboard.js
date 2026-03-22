@@ -291,33 +291,6 @@ export default function Dashboard({ data, update, setPage }) {
         </div>
       </div>
 
-      {/* Daily Focus + Scripture from cached resources */}
-      {(()=>{
-        try {
-          const cached = localStorage.getItem('bonfire_dash_daily_' + new Date().toISOString().split('T')[0]);
-          if (!cached) return null;
-          const {resources, scripture} = JSON.parse(cached);
-          return (
-            <div style={{marginBottom:"1.5rem",display:"flex",flexDirection:"column",gap:"1rem"}}>
-              {resources?.focus_area && (
-                <div className="card ember-glow" style={{margin:0}}>
-                  <div style={{fontSize:"0.62rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Today's Focus</div>
-                  <div style={{fontFamily:"var(--font-display)",fontSize:"0.95rem",color:"var(--cream)",lineHeight:1.5}}>{resources.focus_area}</div>
-                  {resources.focus_insight&&<div style={{fontSize:"0.78rem",color:"var(--fog)",marginTop:4,lineHeight:1.5}}>{resources.focus_insight}</div>}
-                </div>
-              )}
-              {scripture && (
-                <div className="card" style={{background:"rgba(42,157,143,0.06)",border:"1px solid rgba(42,157,143,0.2)"}}>
-                  <div style={{fontSize:"0.62rem",color:"#2A9D8F",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>Scripture</div>
-                  <div style={{fontFamily:"var(--font-display)",fontSize:"0.85rem",color:"var(--pale)",lineHeight:1.5,fontStyle:"italic",marginBottom:4}}>"{scripture.text}"</div>
-                  <div style={{fontSize:"0.72rem",color:"#2A9D8F"}}>— {scripture.reference}</div>
-                </div>
-              )}
-            </div>
-          );
-        } catch(e){ return null; }
-      })()}
-
       {/* Generate Daily Summary */}
       <div className="card" style={{marginBottom:"1.5rem"}}>
         <div className="card-header">
