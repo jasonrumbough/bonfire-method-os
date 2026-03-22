@@ -220,7 +220,14 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", color:"var(--cream)", marginBottom:4 }}>
             Resources
           </div>
+          <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>
+            Curated daily for your biggest growth areas
+            {lastGenerated && <span> · {lastGenerated}</span>}
+          </div>
         </div>
+        <button className="btn btn-ghost btn-sm" onClick={refresh} disabled={loading} style={{ fontSize:"0.78rem" }}>
+          {loading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↻ Refresh"}
+        </button>
       </div>
 
       {resources && (
@@ -287,15 +294,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
       )}
 
 
-          <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>
-            Curated daily for your biggest growth areas
-            {lastGenerated && <span> · {lastGenerated}</span>}
-          </div>
-        </div>
-        <button className="btn btn-ghost btn-sm" onClick={refresh} disabled={loading} style={{ fontSize:"0.78rem" }}>
-          {loading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↻ Refresh"}
-        </button>
-      </div>
 
       {/* Loading */}
       {loading && !resources && (
