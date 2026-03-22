@@ -71,7 +71,7 @@ export default function NotesPage({ data, update }) {
       {filtered.length === 0 && (
         <div className="card" style={{ textAlign: "center", padding: "2rem", color: "var(--smoke)" }}>
           <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📓</div>
-          {search ? "No notes matching your search." : filters.includes( "all" ? "No notes yet. Capture your first insight." : "No " + filter + " notes yet."}
+            {search ? "No notes matching your search." : filters.includes('all') ? "No notes yet. Capture your first insight." : "No " + filters.join(', ') + " notes yet."}
         </div>
       )}
 
