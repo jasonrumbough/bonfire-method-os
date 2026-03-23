@@ -48,6 +48,37 @@ const [modal, setModal] = useState(false);
         <button className="btn btn-primary" onClick={openAdd}>+ Add Entry</button>
       </div>
 
+      {/* On This Day */}
+      {(()=>{
+        const allAudits = data.allAudits || {};
+        const today = new Date();
+        const mm = today.getMonth()+1, dd = today.getDate();
+        const past = Object.entries(allAudits).filter(([date]) => {
+          const d = new Date(date);
+          return (d.getMonth()+1)===mm && d.getDate()===dd && d.getFullYear()<today.getFullYear();
+        }).sort(([a],[b])=>new Date(b)-new Date(a));
+        if (!past.length) return null;
+        return (
+          <div className="card ember-glow" style={{marginBottom:"1.5rem"}}>
+            <div style={{fontSize:"0.65rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>🕯 On This Day in Past Years</div>
+            {past.slice(0,3).map(([date,entry])=>(
+              <div key={date} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",background:"var(--ash)",borderRadius:8,marginBottom:6,cursor:"pointer"}} onClick={()=>setSelectedEntry({...entry,date})}>
+                <div>
+                  <div style={{fontSize:"0.82rem",color:"var(--pale)",fontWeight:600}}>{new Date(date).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})}</div>
+                  {entry.wins&&<div style={{fontSize:"0.72rem",color:"var(--fog)",marginTop:2,fontStyle:"italic"}}>"{entry.wins.substring(0,70)}{entry.wins.length>70?'…':''}"</div>}
+                </div>
+                <div style={{textAlign:"right",minWidth:40}}>
+                  <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--ember)"}}>{entry.overall||"—"}</div>
+                  <div style={{fontSize:"0.6rem",color:"var(--smoke)"}}>score</div>
+                </div>
+              </div>
+            ))}
+            {past.length>3&&<div style={{fontSize:"0.72rem",color:"var(--smoke)",textAlign:"center",marginTop:4}}>+{past.length-3} more on this date</div>}
+          </div>
+        );
+      })()}
+
+
       {sorted.length === 0 && (
         <div className="card" style={{ textAlign: "center", padding: "2rem", color: "var(--smoke)" }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>📋</div>
