@@ -230,6 +230,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
         </button>
       </div>
 
+
       {resources && (
         <div>
 
@@ -291,7 +292,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           )}
 
 
-
       {/* Loading */}
       {loading && !resources && (
         <div className="card" style={{ textAlign:"center", padding:"3rem" }}>
@@ -299,6 +299,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           <div style={{ fontSize:"0.85rem", color:"var(--smoke)" }}>Curating your personalized resource list...</div>
         </div>
       )}
+
 
       {resources && (<div>
           {/* Type filter tabs */}
@@ -359,8 +360,9 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
               No resources found for this filter.
             </div>
           )}
-        </div>
+      </div>
       )}
+
     </div>
   );
 }
