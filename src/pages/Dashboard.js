@@ -194,6 +194,34 @@ export default function Dashboard({ data, update, setPage }) {
       </div>
 
 
+
+      {/* Burnout risk alert */}
+      {(()=>{
+        const scores = data.auditScores || {};
+        const ashesKeys = ['as1','as2','as3','as4','as5'];
+        const ashesAvg = ashesKeys.map(k=>scores[k]||0).filter(v=>v>0);
+        if (!ashesAvg.length) return null;
+        const avg = ashesAvg.reduce((a,b)=>a+b,0)/ashesAvg.length;
+        const allAudits = data.allAudits || {};
+        const recent = Object.entries(allAudits).sort(([a],[b])=>new Date(b)-new Date(a)).slice(0,7);
+        const trend = recent.map(([,e])=>parseFloat(e.overall)||0).filter(v=>v>0);
+        const trending = trend.length>=3 && trend[0]<trend[trend.length-1]-0.5;
+        if (avg < 3 && !trending) return null;
+        const level = avg>=4 ? 'high' : avg>=3 ? 'moderate' : 'watch';
+        const colors = {high:'rgba(232,89,60,0.15)',moderate:'rgba(201,146,47,0.12)',watch:'rgba(42,157,143,0.1)'};
+        const borders = {high:'rgba(232,89,60,0.4)',moderate:'rgba(201,146,47,0.35)',watch:'rgba(42,157,143,0.3)'};
+        const icons = {high:'🔴',moderate:'🟡',watch:'🟢'};
+        const msgs = {high:'High burnout risk detected. Your ASHES scores are elevated — time to tend the fire intentionally.',moderate:'Moderate burnout signals present. Watch your energy and support systems this week.',watch:'Some burnout indicators trending up. Stay attentive to your rhythms.'};
+        return (
+          <div style={{padding:"12px 16px",background:colors[level],border:"1px solid "+borders[level],borderRadius:10,marginBottom:"1rem",display:"flex",alignItems:"flex-start",gap:10}}>
+            <span style={{fontSize:"1.1rem",marginTop:1}}>{icons[level]}</span>
+            <div>
+              <div style={{fontSize:"0.72rem",color:"var(--ember)",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3,fontWeight:600}}>Weekly Burnout Check</div>
+              <div style={{fontSize:"0.82rem",color:"var(--pale)",lineHeight:1.6}}>{msgs[level]}</div>
+            </div>
+          </div>
+        );
+      })()}
       {/* Today's Focus — from loadDailyContent */}
       {dashFocus && (
         <div className="card ember-glow" style={{marginBottom:"1rem"}}>
@@ -223,7 +251,7 @@ export default function Dashboard({ data, update, setPage }) {
               ? <RadarChart scores={radarScores} labels={SYSTEMS.map(s => s.label)} />
               : <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"100%", gap:12 }}>
                   <div style={{ color:"var(--smoke)", fontSize:"0.85rem", textAlign:"center" }}>Complete the SYSTEMS audit to populate this radar.</div>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setPage("audit")}>Go to Audit →</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setPage("tend")}>Go to Tend →</button>
                 </div>
             }
           </div>
@@ -272,7 +300,7 @@ export default function Dashboard({ data, update, setPage }) {
               )}
             </div>
           </div>
-          <button className="btn btn-primary" onClick={() => setPage("audit")} style={{ width:"100%", justifyContent:"center", padding:"0.75rem" }}>
+          <button className="btn btn-primary" onClick={() => setPage("tend")} style={{ width:"100%", justifyContent:"center", padding:"0.75rem" }}>
             Tend the Fire →
           </button>
         </div>
