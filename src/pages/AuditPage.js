@@ -451,53 +451,6 @@ export default function AuditPage({ data, update, initialTab = "overview", setPa
       )}
 
 
-      {/* ── SUMMARY ── */}
-      {pillar==="summary" && (
-        <div>
-          {/* Score cards */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:"1.5rem"}}>
-            {[
-              {label:"Today's Score", val:hasTodayAudit?allAudits[today].overall:"—", color:"#E8593C"},
-              {label:"Spark",         val:spScore.toFixed(1), color:"#E8593C"},
-              {label:"SYSTEMS",       val:syScore.toFixed(1), color:"#C9922F"},
-              {label:"AIR",           val:aiScore.toFixed(1), color:"#2A9D8F"},
-            ].map(s=>(
-              <div key={s.label} style={{background:"var(--ash)",borderRadius:8,padding:"1rem",textAlign:"center",borderTop:"2px solid "+s.color}}>
-                <div style={{fontFamily:"var(--font-display)",fontSize:"1.8rem",color:s.color,lineHeight:1}}>{s.val}</div>
-                <div style={{fontSize:"0.62rem",color:"var(--smoke)",textTransform:"uppercase",letterSpacing:"0.08em",marginTop:4,lineHeight:1.3}}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="card">
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-              <div>
-                <div className="card-title">Coaching Summary</div>
-                <div className="card-sub" style={{marginTop:2}}>AI coaching insights based on today's audit and Daily Fire entries</div>
-              </div>
-              {!summaryDone && (
-                <button className="btn btn-primary btn-sm" onClick={generateSummary} disabled={summaryLoading}>
-                  {summaryLoading?<><span className="spinner" style={{width:12,height:12}}/> Generating...</>:"Generate Summary"}
-                </button>
-              )}
-              {summaryDone && <span style={{fontSize:"0.75rem",color:"#5DCAA5"}}>✓ Ready</span>}
-            </div>
-            {summaryLoading && (
-              <div style={{display:"flex",alignItems:"center",gap:10,padding:"1rem",background:"var(--ash)",borderRadius:8,color:"var(--smoke)",fontSize:"0.82rem"}}>
-                <span className="spinner"/> Generating your summary...
-              </div>
-            )}
-            {!summaryLoading && summary && (
-              <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.8,whiteSpace:"pre-wrap"}}>{summary}</div>
-            )}
-            {!summaryLoading && !summary && (
-              <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic",padding:"1rem",background:"var(--ash)",borderRadius:8}}>
-                Complete your Spark and SYSTEMS audits, then click Generate Summary for personalized coaching insights.
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
