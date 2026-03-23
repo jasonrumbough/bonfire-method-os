@@ -231,6 +231,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
       </div>
 
 
+
       {resources && (
         <div>
 
@@ -300,9 +301,8 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
         </div>
       )}
 
-
-      {resources && (<div>
-          {/* Type filter tabs */}
+      {resources && (
+        <div>
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
             {[{key:'all',label:'All',icon:'🔥'},...RESOURCE_TYPES].map(t=>(
               <button key={t.key} onClick={()=>setActiveType(t.key)}
@@ -359,10 +359,11 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             <div className="card" style={{ textAlign:"center", padding:"2rem", color:"var(--smoke)", fontSize:"0.82rem" }}>
               No resources found for this filter.
             </div>
-          )}
-      </div>
+        </div>
       )}
 
+      </div>
+    </div>
     </div>
   );
 }
