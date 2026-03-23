@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 const TYPES = ["MBTI (e.g., INTJ)", "DiSC (e.g., High-D)", "Enneagram (e.g., Type 3)", "StrengthsFinder", "KOLBE", "Other"];
 
 export default function PersonalityPage({ data, update }) {
+  const [saved, setSaved] = React.useState(false);
   const personality = data.personality || {};
   const [parsing, setParsing] = useState(false);
   const [parseResult, setParseResult] = useState("");
@@ -97,6 +98,10 @@ export default function PersonalityPage({ data, update }) {
         <div className="form-group"><label>How I Lead Best</label><textarea rows={2} value={personality.leadershipStyle || ""} onChange={e => save("leadershipStyle", e.target.value)} placeholder="Your natural leadership wiring..." /></div>
         <div className="form-group"><label>What Energizes Me</label><textarea rows={2} value={personality.energizers || ""} onChange={e => save("energizers", e.target.value)} placeholder="Contexts, activities, roles that give you energy..." /></div>
         <div className="form-group"><label>What Drains Me</label><textarea rows={2} value={personality.drainers || ""} onChange={e => save("drainers", e.target.value)} placeholder="What consistently costs you..." /></div>
+      </div>
+      <div style={{ display:"flex", justifyContent:"flex-end", marginTop:"1.5rem", gap:8, alignItems:"center" }}>
+        {saved && <span style={{ fontSize:"0.78rem", color:"#5DCAA5" }}>✓ Saved</span>}
+        <button className="btn btn-primary" onClick={handleSave}>💾 Save Personality Profile</button>
       </div>
     </div>
   );
