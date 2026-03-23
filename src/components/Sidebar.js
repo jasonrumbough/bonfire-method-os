@@ -23,8 +23,7 @@ const NAV = [
 export default function Sidebar({ page, setPage, user, onSignOut, syncing, localOnly, onEraseData }) {
   const [open, setOpen] = useState(false);
   const navigate = (key) => {
-    if (key === "air") setPage("audit_air");
-    else setPage(key);
+    setPage(key);
     setOpen(false);
   };
   const isActive = (key) => key === "air" ? page === "audit_air" : page === key;
