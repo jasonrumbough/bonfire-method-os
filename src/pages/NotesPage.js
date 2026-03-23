@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import Modal from "../components/Modal";
 
-const TAGS = ["general", "spark", "systems", "air", "coaching", "idea", "scripture", "question", "win", "challenge"];
+const TAGS = ["general", "spark", "systems", "air", "coaching", "idea", "inspiration", "question", "win", "challenge"];
 const TAG_PILL = { general: "pill-smoke", spark: "pill-ember", systems: "pill-gold", air: "pill-teal", coaching: "pill-blue", idea: "pill-gold", scripture: "pill-gold", question: "pill-blue", win: "pill-teal", challenge: "pill-ember" };
 
 export default function NotesPage({ data, update }) {
