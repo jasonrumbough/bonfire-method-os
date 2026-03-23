@@ -300,7 +300,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
         </div>
       )}
 
-      {resources && (
+      {resources && (<div>
           {/* Type filter tabs */}
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
             {[{key:'all',label:'All',icon:'🔥'},...RESOURCE_TYPES].map(t=>(
@@ -360,7 +360,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             </div>
           )}
         </div>
-      )}
+      </div>)}
       )}
     </div>
   );
