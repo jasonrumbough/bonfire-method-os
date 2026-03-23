@@ -12,6 +12,7 @@ export default function NotesPage({ data, update }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ title: '', content: '', tag: 'general', image: null });
   const imgRef = useRef(null);
+  const noteFileRef = useRef(null);
 
   const toggleFilter = (tag) => {
     if (tag === 'all') { setFilters(['all']); return; }
@@ -132,12 +133,12 @@ export default function NotesPage({ data, update }) {
                   style={{ position: "absolute", top: 4, right: 4, background: "rgba(26,20,16,0.8)", border: "none", color: "var(--pale)", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", fontSize: "0.8rem" }}>×</button>
               </div>
             ) : (
-              <div className="upload-zone" onClick={() => fileRef.current?.click()} style={{ padding: "1rem" }}>
+              <div className="upload-zone" onClick={() => noteFileRef.current?.click()} style={{ padding: "1rem" }}>
                 <div style={{ fontSize: "0.875rem" }}>Click to upload an image</div>
                 <div style={{ fontSize: "0.72rem", marginTop: 2, color: "var(--smoke)" }}>JPG, PNG, GIF supported</div>
               </div>
             )}
-            <input type="file" ref={fileRef} style={{ display: "none" }} accept="image/*" onChange={handleImageUpload} />
+            <input type="file" ref={noteFileRef} style={{ display: "none" }} accept="image/*" onChange={handleImageUpload} />
           </div>
 
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
