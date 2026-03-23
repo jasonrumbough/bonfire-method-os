@@ -366,7 +366,7 @@ Continue: ..."/></div>
       {/* ── ANNUAL ────────────────────────────────────────────────────── */}
       {tf === "annual" && (
         <div>
-          <Section title="🏆 Annual Review — Scores" sub="Rate each system for the full year.">
+          <Section title="🏆 Annual Review" sub="Rate each system for the full year.">
             {[...AUDIT_QUESTIONS.spark, ...AUDIT_QUESTIONS.systems].map(q=>(
               <div key={q.id} className="audit-question">
                 <div className="audit-q"><span>{q.p} — </span>{pastTense(q)}</div>
