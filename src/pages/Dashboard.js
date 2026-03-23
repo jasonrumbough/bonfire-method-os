@@ -5,6 +5,16 @@ import { RadarChart, LineChart } from "../components/Charts";
 import HealthRing from "../components/HealthRing";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../utils/supabase";
 
+const SCORE_LABELS = {
+  sp1:"Passion Clarity", sp2:"Work Alignment", sp3:"Pattern Recognition",
+  sp4:"Skill Development", sp5:"Financial Provision", sp6:"Personality Alignment",
+  sy1:"Structure", sy2:"Yield", sy3:"Support", sy4:"Time Management",
+  sy5:"Energy", sy6:"Money", sy7:"Story",
+  ai1:"Audit Rhythm", ai2:"Intentional Investment", ai3:"Reflection Practice",
+  ai4:"Drift Prevention", ai5:"Sustainable Growth"
+};
+
+
 const todayKey = () => new Date().toISOString().split("T")[0];
 const SYS_AUDIT_MAP = { structure:"sy1", yield:"sy2", support:"sy3", time:"sy4", energy:"sy5", money:"sy6", story:"sy7" };
 
@@ -49,7 +59,7 @@ export default function Dashboard({ data, update, setPage }) {
       const scores = data.auditScores||{};
       const stmt = data.sparkStatement||'';
       const scoreStr = Object.entries(scores).filter(([,v])=>v>0).map(([k,v])=>k+':'+v).join(', ');
-       const prompt = `Write a coaching summary for this leader. Spark: "${stmt}". Scores: ${scoreStr}. Format: Whats Burning Well: [2 sentences]. What Needs Tending: [2 sentences]. Your Single Most Important Next Step: [1 sentence].`;
+       const prompt = `Write a coaching summary for this leader. Spark: "${stmt}". Scores (use these exact names, never use codes like sp1/sy2): ${scoreStr}. Format: Whats Burning Well: [2 sentences]. What Needs Tending: [2 sentences]. Your Single Most Important Next Step: [1 sentence].`;
       const r = await fetch(SUPABASE_URL+'/functions/v1/coach',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({messages:[{role:'user',content:prompt}],system:'Be direct and specific. Use the actual scores provided.'})});
       const rd = await r.json();
       setDashSummary(rd.content?.[0]?.text||'');
