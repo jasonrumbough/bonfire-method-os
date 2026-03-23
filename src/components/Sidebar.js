@@ -5,7 +5,7 @@ const NAV = [
   { section:"The Method", items:[
     { key:"spark",   label:"SPARK" },
     { key:"systems", label:"SYSTEMS" },
-    { key:"air",     label:"AIR RHYTHM" },
+    { key:"air",     label:"AIR" },
   ]},
   { section:"Tools", items:[
     { key:"tend",        label:"TEND" },
