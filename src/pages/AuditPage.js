@@ -12,6 +12,7 @@ const TIMEFRAMES = [
   { key:"monthly",    label:"Monthly",            icon:"🗓" },
   { key:"quarterly",  label:"Quarterly",          icon:"📊" },
   { key:"semiannual", label:"Semi-Annual",        icon:"🔥" },
+  { key:"annual",     label:"Annual Review",     icon:"🏆" },
 ];
 
 // ── FireRating display bar ─────────────────────────────────────────────────
@@ -28,6 +29,11 @@ function FireBar({ value, max=5 }) {
   );
 }
 
+
+// Convert present-tense question to past tense for review sections
+function pastTense(q) {
+  return q.q.replace(/^I can /, "I was able to ").replace(/^I have /, "I had ").replace(/^I am /, "I was ").replace(/^I consistently /, "I consistently ").replace(/^I regularly /, "I regularly ").replace(/^My /, "My ");
+}
 // ── Section card wrapper ───────────────────────────────────────────────────
 function Section({ title, sub, children }) {
   return (
@@ -109,19 +115,13 @@ export default function AuditPage({ data, update, setPage }) {
 
       {/* Timeframe selector */}
       <div className="card" style={{marginBottom:"1.5rem",padding:"1rem"}}>
-        <div style={{fontSize:"0.65rem",color:"var(--smoke)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Select Check-In Type</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+        <label style={{fontSize:"0.65rem",color:"var(--smoke)",textTransform:"uppercase",letterSpacing:"0.1em",display:"block",marginBottom:8}}>Select Check-In Type</label>
+        <select value={tf} onChange={e=>setTf(e.target.value)}
+          style={{width:"100%",background:"var(--ash)",color:"var(--cream)",border:"1px solid var(--coal-light)",borderRadius:8,padding:"10px 14px",fontSize:"0.9rem",fontFamily:"var(--font-body)",cursor:"pointer",appearance:"auto"}}>
           {TIMEFRAMES.map(t=>(
-            <button key={t.key} onClick={()=>setTf(t.key)}
-              style={{padding:"10px 8px",borderRadius:8,border:"1px solid",textAlign:"center",cursor:"pointer",fontSize:"0.78rem",fontFamily:"var(--font-body)",
-                borderColor:tf===t.key?"var(--ember)":"var(--ash)",
-                background:tf===t.key?"rgba(232,89,60,0.12)":"transparent",
-                color:tf===t.key?"var(--ember-light)":"var(--smoke)"}}>
-              <div style={{fontSize:"1.1rem",marginBottom:4}}>{t.icon}</div>
-              {t.label}
-            </button>
+            <option key={t.key} value={t.key}>{t.icon} {t.label}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* ── DAILY MORNING ─────────────────────────────────────────────── */}
@@ -263,7 +263,7 @@ export default function AuditPage({ data, update, setPage }) {
       {/* ── MONTHLY ───────────────────────────────────────────────────── */}
       {tf === "monthly" && (
         <div>
-          <Section title="🗓 This Past Month — Scores" sub="Rate each system for the month overall.">
+          <Section title="🗓 This Past Month" sub="Rate each system for the month overall.">
             {[...AUDIT_QUESTIONS.spark, ...AUDIT_QUESTIONS.systems].map(q=>(
               <div key={q.id} className="audit-question">
                 <div className="audit-q"><span>{q.p} — </span>{q.q}</div>
@@ -293,7 +293,7 @@ export default function AuditPage({ data, update, setPage }) {
       {/* ── QUARTERLY ─────────────────────────────────────────────────── */}
       {tf === "quarterly" && (
         <div>
-          <Section title="📊 This Past Quarter — Scores" sub="Rate each system for the quarter overall.">
+          <Section title="📊 This Past Quarter" sub="Rate each system for the quarter overall.">
             {[...AUDIT_QUESTIONS.spark, ...AUDIT_QUESTIONS.systems].map(q=>(
               <div key={q.id} className="audit-question">
                 <div className="audit-q"><span>{q.p} — </span>{q.q}</div>
@@ -325,7 +325,7 @@ Continue: ..."/></div>
       {/* ── SEMI-ANNUAL ───────────────────────────────────────────────── */}
       {tf === "semiannual" && (
         <div>
-          <Section title="🔥 Semi-Annual Review — Scores" sub="Rate each system for the past six months.">
+          <Section title="🔥 Semi-Annual Review" sub="Rate each system for the past six months.">
             {[...AUDIT_QUESTIONS.spark, ...AUDIT_QUESTIONS.systems].map(q=>(
               <div key={q.id} className="audit-question">
                 <div className="audit-q"><span>{q.p} — </span>{q.q}</div>
@@ -362,6 +362,48 @@ Continue: ..."/></div>
         </div>
       )}
 
+
+      {/* ── ANNUAL ────────────────────────────────────────────────────── */}
+      {tf === "annual" && (
+        <div>
+          <Section title="🏆 Annual Review — Scores" sub="Rate each system for the full year.">
+            {[...AUDIT_QUESTIONS.spark, ...AUDIT_QUESTIONS.systems].map(q=>(
+              <div key={q.id} className="audit-question">
+                <div className="audit-q"><span>{q.p} — </span>{pastTense(q)}</div>
+                <FireRating value={scores[q.id]||0} onChange={v=>setScore(q.id,v)}/>
+              </div>
+            ))}
+          </Section>
+          <Section title="🏆 Year in Review">
+            <div className="form-group"><label>What was the defining moment of this year?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_moment||""} onChange={e=>setJ("ann_moment",e.target.value)} placeholder="The moment that changed everything..."/></div>
+            <div className="form-group"><label>Where did the fire burn brightest? Where did it nearly go out?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_highs||""} onChange={e=>setJ("ann_highs",e.target.value)} placeholder="Peak moments and near-burnout points..."/></div>
+            <div className="form-group"><label>What did this year teach you about your leadership?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_leadership||""} onChange={e=>setJ("ann_leadership",e.target.value)} placeholder="What you now know that you didn't a year ago..."/></div>
+            <div className="form-group"><label>What story did your life tell this year? Is it the story you wanted to tell?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_story||""} onChange={e=>setJ("ann_story",e.target.value)} placeholder="The narrative your life communicated..."/></div>
+          </Section>
+          <Section title="🏆 The Year Ahead">
+            <div className="form-group"><label>What is the one word that should define next year?</label>
+              <textarea className="textarea" rows={1} value={journal.ann_word||""} onChange={e=>setJ("ann_word",e.target.value)} placeholder="Your word for the year..."/></div>
+            <div className="form-group"><label>What needs to fundamentally change for next year to be different?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_change||""} onChange={e=>setJ("ann_change",e.target.value)} placeholder="Deep structural or directional shifts..."/></div>
+            <div className="form-group"><label>What fires are you lighting for the next generation?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_legacy||""} onChange={e=>setJ("ann_legacy",e.target.value)} placeholder="Legacy you're building..."/></div>
+            <div className="form-group"><label>What would make next year the most meaningful year of your leadership?</label>
+              <textarea className="textarea" rows={2} value={journal.ann_vision||""} onChange={e=>setJ("ann_vision",e.target.value)} placeholder="Your bold vision for the year ahead..."/></div>
+          </Section>
+          <Section title="🏆 AIR Rhythm — Annual Check">
+            {AUDIT_QUESTIONS.air.map(q=>(
+              <div key={q.id} className="audit-question">
+                <div className="audit-q">{q.q}</div>
+                <FireRating value={scores[q.id]||0} onChange={v=>setScore(q.id,v)}/>
+              </div>
+            ))}
+          </Section>
+        </div>
+      )}
       {/* Save button at bottom */}
       <div className="card" style={{marginTop:"0.5rem"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
