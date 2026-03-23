@@ -263,21 +263,19 @@ export default function App() {
 
   // 7. Fully approved — show the app
   const renderPage = () => {
-    switch (page) {
-      case "dashboard":   return <Dashboard    data={data} update={update} setPage={setPage} />;
-      case "spark":       return <SparkPage    data={data} update={update} />;
-      case "air":         return <AirPage      data={data} update={update} setPage={setPage} />;
-      case "systems":     return <SystemsPage  data={data} update={update} setPage={setPage} />;
-      case "tend":       return <AuditPage    data={data} update={update} initialTab="overview" setPage={setPage} />;
-      case "air":         return <AirPage      data={data} update={update} />;
-      case "coach":       return <CoachPage    data={data} />;
-      case "notes":       return <NotesPage    data={data} update={update} />;
-      case "history":     return <HistoryPage  data={data} update={update} />;
-      case "personality": return <PersonalityPage data={data} update={update} />;
-     case "resources": return <ResourcesPage data={data} />;
-     case "health":      return <HealthPage   data={data} update={update} />;
-      default:            return <Dashboard    data={data} update={update} setPage={setPage} />;
-    }
+    const props = { data, update, setPage };
+    if (page === "dashboard")   return <Dashboard        {...props} />;
+    if (page === "spark")       return <SparkPage        {...props} />;
+    if (page === "systems")     return <SystemsPage      {...props} />;
+    if (page === "air")         return <AirPage          {...props} />;
+    if (page === "tend")        return <AuditPage        {...props} />;
+    if (page === "notes")       return <NotesPage        {...props} />;
+    if (page === "history")     return <HistoryPage      {...props} />;
+    if (page === "resources")   return <ResourcesPage    {...props} />;
+    if (page === "personality") return <PersonalityPage  {...props} />;
+    if (page === "health")      return <HealthPage       {...props} />;
+    if (page === "coach")       return <CoachPage        {...props} />;
+    return <Dashboard {...props} />;
   };
 
   return (
