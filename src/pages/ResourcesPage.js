@@ -290,17 +290,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             </div>
           )}
         </div>
-      )}
-
-
-
-      {/* Loading */}
-      {loading && !resources && (
-        <div className="card" style={{ textAlign:"center", padding:"3rem" }}>
-          <span className="spinner" style={{ width:24, height:24, margin:"0 auto 1rem" }} />
-          <div style={{ fontSize:"0.85rem", color:"var(--smoke)" }}>Curating your personalized resource list...</div>
-        </div>
-      )}
 
           {/* Type filter tabs */}
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
@@ -361,6 +350,19 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             </div>
           )}
         </div>
+      </div>
+      )}
+
+
+
+      {/* Loading */}
+      {loading && !resources && (
+        <div className="card" style={{ textAlign:"center", padding:"3rem" }}>
+          <span className="spinner" style={{ width:24, height:24, margin:"0 auto 1rem" }} />
+          <div style={{ fontSize:"0.85rem", color:"var(--smoke)" }}>Curating your personalized resource list...</div>
+        </div>
+      )}
+
     </div>
   );
 }
