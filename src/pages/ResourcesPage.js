@@ -211,41 +211,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
     return `https://www.google.com/search?q=${q}`;
   };
 
-  const cardList = filtered.map((r, i) => {
-              const url = getUrl(r);
-              return (
-                <div key={i} className="card" style={{ borderLeft:"3px solid var(--ember)" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                        <span style={{ fontSize:"1rem" }}>{typeIcon(r.type)}</span>
-                        <span style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", background:"rgba(232,89,60,0.1)", padding:"2px 8px", borderRadius:20 }}>
-                          {typeLabel(r.type)}
-                        </span>
-                      </div>
-                      <a href={url} target="_blank" rel="noreferrer"
-                        style={{ fontFamily:"var(--font-display)", fontSize:"1rem", color:"var(--cream)", textDecoration:"none", display:"block", marginBottom:2, lineHeight:1.3 }}
-                        onMouseEnter={e=>e.currentTarget.style.color='var(--ember-light)'}
-                        onMouseLeave={e=>e.currentTarget.style.color='var(--cream)'}>
-                        {r.title} ↗
-                      </a>
-                      <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>{r.author}</div>
-                    </div>
-                    <a href={url} target="_blank" rel="noreferrer"
-                      style={{ flexShrink:0, marginLeft:12, padding:"5px 12px", background:"rgba(232,89,60,0.12)", border:"1px solid rgba(232,89,60,0.25)", borderRadius:6, color:"var(--ember-light)", fontSize:"0.72rem", textDecoration:"none", whiteSpace:"nowrap" }}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(232,89,60,0.25)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(232,89,60,0.12)'}>
-                      Open →
-                    </a>
-                  </div>
-                  <div style={{ fontSize:"0.82rem", color:"var(--fog)", lineHeight:1.65, marginBottom:10 }}>{r.why}</div>
-                  <div style={{ background:"rgba(232,89,60,0.07)", border:"1px solid rgba(232,89,60,0.15)", borderRadius:8, padding:"8px 12px" }}>
-                    <div style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:4 }}>This week's takeaway</div>
-                    <div style={{ fontSize:"0.82rem", color:"var(--pale)", lineHeight:1.6 }}>{r.takeaway}</div>
-                  </div>
-                </div>
-              );
-  });
   return (
     <div style={{ padding:"1.5rem 1rem", maxWidth:760, margin:"0 auto" }}>
 
@@ -282,50 +247,18 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             </div>
           )}
 
-        {/* Spotify Playlist */}
-        <div className="card" style={{marginBottom:"1rem"}}>
-          <div className="card-header">
-            <div>
-              <div className="card-title">🎵 Your Focus Playlist</div>
-              <div className="card-sub" style={{marginTop:2}}>Curated by AI based on your current scores and season</div>
-            </div>
-            <button className="btn btn-ghost btn-sm" onClick={generatePlaylist} disabled={playlistLoading}
-              style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
-              {playlistLoading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↺ Refresh"}
-            </button>
-          </div>
-          {playlist ? (
-            <div>
-              <div style={{fontSize:"0.85rem",color:"var(--pale)",lineHeight:1.7,marginBottom:12,padding:"10px 14px",background:"var(--ash)",borderRadius:8,fontStyle:"italic"}}>
-                "{playlist.rationale}"
-              </div>
-              <div style={{display:"grid",gap:6}}>
-                {(playlist.tracks||[]).map((t,i)=>(
-                  <a key={i} href={"https://open.spotify.com/search/"+encodeURIComponent((t.title||"")+" "+(t.artist||""))} target="_blank" rel="noreferrer"
-                    style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--ash)",borderRadius:8,textDecoration:"none",cursor:"pointer"}}>
-                    <span style={{fontSize:"1rem",minWidth:20,textAlign:"center"}}>{t.emoji||"🎵"}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:"0.82rem",color:"var(--pale)",fontWeight:500}}>{t.title}</div>
-                      <div style={{fontSize:"0.72rem",color:"var(--smoke)"}}>{t.artist}</div>
-                    </div>
-                    <div style={{display:"flex",alignItems:"center",gap:6}}>
-                      <div style={{fontSize:"0.68rem",color:"var(--ember)",padding:"2px 8px",background:"rgba(232,89,60,0.1)",borderRadius:12}}>{t.vibe}</div>
-                      <span style={{fontSize:"0.75rem",color:"#1DB954"}}>↗</span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-  
-            </div>
-          ) : playlistLoading ? (
-            <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>Curating your playlist...</div>
-          ) : (
-            <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>
-              No playlist yet — click Refresh to generate one based on your current scores.
-            </div>
-          )}
         </div>
+      )}
 
+      {loading && !resources && (
+        <div className="card" style={{ textAlign:"center", padding:"3rem" }}>
+          <span className="spinner" style={{ width:24, height:24, margin:"0 auto 1rem" }} />
+          <div style={{ fontSize:"0.85rem", color:"var(--smoke)" }}>Curating your personalized resource list...</div>
+        </div>
+      )}
+
+
+      {resources && (<div>
           {/* Type filter tabs */}
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
             {[{key:'all',label:'All',icon:'🔥'},...RESOURCE_TYPES].map(t=>(
@@ -342,28 +275,51 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
 
           {/* Resource cards */}
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-            {cardList}
+            {filtered.map((r, i) => {
+              const url = getUrl(r);
+              return (
+                <div key={i} className="card" style={{ borderLeft:"3px solid var(--ember)" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                        <span style={{ fontSize:"1rem" }}>{typeIcon(r.type)}</span>
+                        <span style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", background:"rgba(232,89,60,0.1)", padding:"2px 8px", borderRadius:20 }}>
+                          {typeLabel(r.type)}
+                        </span>
+                      </div>
+                      <a href={url} target="_blank" rel="noreferrer"
+                        style={{ fontFamily:"var(--font-display)", fontSize:"1rem", color:"var(--cream)", textDecoration:"none", display:"block", marginBottom:2, lineHeight:1.3 }}
+                        onMouseEnter={e=>e.currentTarget.style.color='var(--ember-light)'}
+                        onMouseLeave={e=>e.currentTarget.style.color='var(--cream)'}>
+                        {r.title} ↗
+                      </a>
+                      <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>{r.author}</div>
+                    </div>
+                    <a href={url} target="_blank" rel="noreferrer"
+                      style={{ flexShrink:0, marginLeft:12, padding:"5px 12px", background:"rgba(232,89,60,0.12)", border:"1px solid rgba(232,89,60,0.25)", borderRadius:6, color:"var(--ember-light)", fontSize:"0.72rem", textDecoration:"none", whiteSpace:"nowrap" }}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(232,89,60,0.25)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(232,89,60,0.12)'}>
+                      Open →
+                    </a>
+                  </div>
+                  <div style={{ fontSize:"0.82rem", color:"var(--fog)", lineHeight:1.65, marginBottom:10 }}>{r.why}</div>
+                  <div style={{ background:"rgba(232,89,60,0.07)", border:"1px solid rgba(232,89,60,0.15)", borderRadius:8, padding:"8px 12px" }}>
+                    <div style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:4 }}>This week's takeaway</div>
+                    <div style={{ fontSize:"0.82rem", color:"var(--pale)", lineHeight:1.6 }}>{r.takeaway}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {filtered.length === 0 && (
             <div className="card" style={{ textAlign:"center", padding:"2rem", color:"var(--smoke)", fontSize:"0.82rem" }}>
               No resources found for this filter.
-            </div>
-          )}
+        </div>
+      )}
         </div>
       </div>
       )}
-
-
-
-      {/* Loading */}
-      {loading && !resources && (
-        <div className="card" style={{ textAlign:"center", padding:"3rem" }}>
-          <span className="spinner" style={{ width:24, height:24, margin:"0 auto 1rem" }} />
-          <div style={{ fontSize:"0.85rem", color:"var(--smoke)" }}>Curating your personalized resource list...</div>
-        </div>
-      )}
-
     </div>
   );
 }
