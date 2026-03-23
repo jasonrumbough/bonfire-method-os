@@ -212,9 +212,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
   };
 
 
-  const typeIcon = (type) => RESOURCE_TYPES.find(t => t.key === type)?.icon || '🔥';
-  const typeLabel = (type) => RESOURCE_TYPES.find(t => t.key === type)?.label || type;
-  const filtered = activeType === 'all' ? (resources || []) : (resources || []).filter(r => r.type === activeType);
 
   return (
     <div style={{ padding:"1.5rem 1rem", maxWidth:760, margin:"0 auto" }}>
