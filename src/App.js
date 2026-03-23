@@ -269,7 +269,7 @@ export default function App() {
       case "air":       return <AirPage data={userData} setPage={setPage} />;
       case "systems":     return <SystemsPage  data={data} update={update} setPage={setPage} />;
       case "tend":       return <AuditPage    data={data} update={update} initialTab="overview" setPage={setPage} />;
-      case "audit_air":   return <AuditPage    data={data} update={update} initialTab="air" />;
+      case "air":         return <AuditPage    data={data} update={update} initialTab="overview" />;
       case "coach":       return <CoachPage    data={data} />;
       case "notes":       return <NotesPage    data={data} update={update} />;
       case "history":     return <HistoryPage  data={data} update={update} />;
