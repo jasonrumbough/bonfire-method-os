@@ -195,6 +195,29 @@ export default function Dashboard({ data, update, setPage }) {
 
 
 
+
+      {/* Calendar — Day at a Glance */}
+      <div className="card" style={{marginBottom:"1.5rem"}}>
+        <div className="card-header">
+          <div>
+            <div className="card-title">📅 Day at a Glance</div>
+            <div className="card-sub" style={{marginTop:2}}>Your calendar for today</div>
+          </div>
+          <div style={{display:"flex",gap:6}}>
+            <a href="https://calendar.google.com" target="_blank" rel="noreferrer"
+              style={{padding:"5px 12px",fontSize:"0.72rem",borderRadius:6,border:"1px solid var(--ash)",color:"var(--smoke)",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
+              Google
+            </a>
+            <a href="https://outlook.live.com/calendar" target="_blank" rel="noreferrer"
+              style={{padding:"5px 12px",fontSize:"0.72rem",borderRadius:6,border:"1px solid var(--ash)",color:"var(--smoke)",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
+              Outlook
+            </a>
+          </div>
+        </div>
+        <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic",padding:"0.5rem 0"}}>
+          Calendar integration coming soon — click above to open your calendar in a new tab.
+        </div>
+      </div>
       {/* Burnout risk alert */}
       {(()=>{
         const scores = data.auditScores || {};
