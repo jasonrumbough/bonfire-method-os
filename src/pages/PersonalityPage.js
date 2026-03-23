@@ -7,7 +7,7 @@ export default function PersonalityPage({ data, update }) {
   const personality = data.personality || {};
   const [parsing, setParsing] = useState(false);
   const [parseResult, setParseResult] = useState("");
-  const fileRef = useRef();
+  const uploadRef = useRef(null);
 
   const save = (key, val) => update({ ...data, personality: { ...personality, [key]: val } });
 
@@ -67,13 +67,13 @@ export default function PersonalityPage({ data, update }) {
 
       <div className="card">
         <div className="card-title" style={{ marginBottom: 12 }}>Upload Assessment Report</div>
-        <div className="upload-zone" onClick={() => fileRef.current?.click()}>
+        <div className="upload-zone" onClick={() => uploadRef.current?.click()}>
           <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📄</div>
           <div>{parsing ? "Parsing with AI..." : "Click to upload a PDF or document"}</div>
           <div style={{ fontSize: "0.72rem", marginTop: 4, color: "var(--smoke)" }}>DISC, MBTI, StrengthsFinder, Enneagram, etc.</div>
           {parsing && <div style={{ marginTop: 12 }}><span className="spinner" /></div>}
         </div>
-        <input type="file" ref={fileRef} style={{ display: "none" }} accept=".pdf,.docx,.doc,.txt" onChange={handleFile} />
+        <input type="file" ref={uploadRef} style={{ display: "none" }} accept=".pdf,.docx,.doc,.txt" onChange={handleFile} />
 
         {(parseResult || personality.uploadedInsights) && (
           <div style={{ marginTop: 12, background: "var(--ash)", borderRadius: 8, padding: "1rem", fontSize: "0.85rem", color: "var(--pale)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
