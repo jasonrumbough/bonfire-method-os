@@ -289,8 +289,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
               No playlist yet — click Refresh to generate one based on your current scores.
             </div>
           )}
-        </div>
-      )}
 
 
 
