@@ -211,10 +211,14 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
     return `https://www.google.com/search?q=${q}`;
   };
 
+
+  const typeIcon = (type) => RESOURCE_TYPES.find(t => t.key === type)?.icon || '🔥';
+  const typeLabel = (type) => RESOURCE_TYPES.find(t => t.key === type)?.label || type;
+  const filtered = activeType === 'all' ? (resources || []) : (resources || []).filter(r => r.type === activeType);
+
   return (
     <div style={{ padding:"1.5rem 1rem", maxWidth:760, margin:"0 auto" }}>
 
-      {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"1.25rem", flexWrap:"wrap", gap:10 }}>
         <div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", color:"var(--cream)", marginBottom:4 }}>
@@ -225,28 +229,22 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             {lastGenerated && <span> · {lastGenerated}</span>}
           </div>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={refresh} disabled={loading} style={{ fontSize:"0.78rem" }}>
-          {loading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↻ Refresh"}
+        <button className="btn btn-ghost btn-sm" onClick={generate} disabled={loading}
+          style={{ fontSize:"0.75rem", color:"var(--ember)", borderColor:"rgba(232,89,60,0.4)" }}>
+          {loading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↺ Refresh"}
         </button>
       </div>
 
-      {resources && (
-        <div>
-
-          {/* Scripture */}
-          {scripture && (
-            <div className="card" style={{ marginBottom:"1rem", background:"rgba(42,157,143,0.06)", border:"1px solid rgba(42,157,143,0.2)" }}>
-              <div style={{ fontSize:"0.65rem", color:"#2A9D8F", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>📖 Scripture for Today</div>
-              <div style={{ fontFamily:"var(--font-display)", fontSize:"0.9rem", color:"var(--pale)", fontStyle:"italic", lineHeight:1.7, marginBottom:8 }}>
-                "{scripture.text}"
-              </div>
-              <div style={{ fontSize:"0.78rem", color:"#2A9D8F", fontWeight:600, marginBottom:8 }}>— {scripture.reference}</div>
-              <div style={{ fontSize:"0.8rem", color:"var(--fog)", lineHeight:1.6, borderTop:"1px solid rgba(42,157,143,0.15)", paddingTop:8 }}>
-                {scripture.application}
-              </div>
-            </div>
-          )}
-
+      {scripture && (
+        <div className="card" style={{ marginBottom:"1rem", background:"rgba(42,157,143,0.08)", borderColor:"rgba(42,157,143,0.2)" }}>
+          <div style={{ fontSize:"0.65rem", color:"#2A9D8F", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Today's Scripture</div>
+          <div style={{ fontFamily:"var(--font-display)", fontSize:"0.9rem", color:"var(--cream)", lineHeight:1.7, marginBottom:8 }}>
+            "{scripture.text}"
+          </div>
+          <div style={{ fontSize:"0.78rem", color:"#2A9D8F", fontWeight:600, marginBottom:8 }}>{scripture.reference}</div>
+          <div style={{ fontSize:"0.8rem", color:"var(--fog)", lineHeight:1.6, borderTop:"1px solid rgba(42,157,143,0.15)", paddingTop:8 }}>
+            {scripture.application}
+          </div>
         </div>
       )}
 
@@ -257,12 +255,11 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
         </div>
       )}
 
-
-      {resources && (<div>
-          {/* Type filter tabs */}
+      {resources && (
+        <div>
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
-            {[{key:'all',label:'All',icon:'🔥'},...RESOURCE_TYPES].map(t=>(
-              <button key={t.key} onClick={()=>setActiveType(t.key)}
+            {[{key:'all',label:'All',icon:'🔥'},...RESOURCE_TYPES].map(t => (
+              <button key={t.key} onClick={() => setActiveType(t.key)}
                 style={{ padding:"4px 12px", borderRadius:20, border:"1px solid",
                   borderColor:activeType===t.key?"var(--ember)":"var(--ash)",
                   background:activeType===t.key?"rgba(232,89,60,0.15)":"transparent",
@@ -273,32 +270,27 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             ))}
           </div>
 
-          {/* Resource cards */}
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {filtered.map((r, i) => {
-              const url = getUrl(r);
+              const url = r.url || '#';
               return (
-                <div key={i} className="card" style={{ borderLeft:"3px solid var(--ember)" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                <div key={i} className="card" style={{ borderLeft:"3px solid var(--ember)", padding:"1rem 1.25rem" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
                         <span style={{ fontSize:"1rem" }}>{typeIcon(r.type)}</span>
-                        <span style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", background:"rgba(232,89,60,0.1)", padding:"2px 8px", borderRadius:20 }}>
+                        <span style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", background:"rgba(232,89,60,0.1)", padding:"2px 8px", borderRadius:10 }}>
                           {typeLabel(r.type)}
                         </span>
                       </div>
                       <a href={url} target="_blank" rel="noreferrer"
-                        style={{ fontFamily:"var(--font-display)", fontSize:"1rem", color:"var(--cream)", textDecoration:"none", display:"block", marginBottom:2, lineHeight:1.3 }}
-                        onMouseEnter={e=>e.currentTarget.style.color='var(--ember-light)'}
-                        onMouseLeave={e=>e.currentTarget.style.color='var(--cream)'}>
+                        style={{ fontFamily:"var(--font-display)", fontSize:"1rem", color:"var(--cream)", textDecoration:"none", display:"block", marginBottom:2, lineHeight:1.3 }}>
                         {r.title} ↗
                       </a>
                       <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>{r.author}</div>
                     </div>
                     <a href={url} target="_blank" rel="noreferrer"
-                      style={{ flexShrink:0, marginLeft:12, padding:"5px 12px", background:"rgba(232,89,60,0.12)", border:"1px solid rgba(232,89,60,0.25)", borderRadius:6, color:"var(--ember-light)", fontSize:"0.72rem", textDecoration:"none", whiteSpace:"nowrap" }}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(232,89,60,0.25)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(232,89,60,0.12)'}>
+                      style={{ flexShrink:0, marginLeft:12, padding:"5px 12px", background:"rgba(232,89,60,0.12)", border:"1px solid rgba(232,89,60,0.25)", borderRadius:6, color:"var(--ember-light)", fontSize:"0.72rem", textDecoration:"none", whiteSpace:"nowrap" }}>
                       Open →
                     </a>
                   </div>
@@ -315,11 +307,11 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           {filtered.length === 0 && (
             <div className="card" style={{ textAlign:"center", padding:"2rem", color:"var(--smoke)", fontSize:"0.82rem" }}>
               No resources found for this filter.
+            </div>
+          )}
         </div>
       )}
-        </div>
-      </div>
-      )}
+
     </div>
   );
 }
