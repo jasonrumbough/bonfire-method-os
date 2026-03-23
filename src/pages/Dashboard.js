@@ -212,6 +212,10 @@ export default function Dashboard({ data, update, setPage }) {
               style={{padding:"5px 12px",fontSize:"0.72rem",borderRadius:6,border:"1px solid var(--ash)",color:"var(--smoke)",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
               Outlook
             </a>
+            <a href="webcal://" target="_blank" rel="noreferrer"
+              style={{padding:"5px 12px",fontSize:"0.72rem",borderRadius:6,border:"1px solid var(--ash)",color:"var(--smoke)",textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
+              iCal
+            </a>
           </div>
         </div>
         <div style={{fontSize:"0.82rem",color:"var(--smoke)",fontStyle:"italic",padding:"0.5rem 0"}}>
