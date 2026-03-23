@@ -360,7 +360,8 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             </div>
           )}
         </div>
-      </div>)}
+      </div>
+      )}
       )}
     </div>
   );
