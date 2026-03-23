@@ -301,9 +301,9 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           <div style={{ fontSize:"0.85rem", color:"var(--smoke)" }}>Curating your personalized resource list...</div>
         </div>
       )}
-
       {resources && (
         <div>
+
           {/* Type filter tabs */}
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
             {[{key:'all',label:'All',icon:'ð¥'},...RESOURCE_TYPES].map(t=>(
@@ -352,9 +352,6 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
                     <div style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:4 }}>This week's takeaway</div>
                     <div style={{ fontSize:"0.82rem", color:"var(--pale)", lineHeight:1.6 }}>{r.takeaway}</div>
                   </div>
-        </div>
-      )}
-
                 </div>
               );
             })}
