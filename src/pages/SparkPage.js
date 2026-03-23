@@ -13,14 +13,12 @@ const SIX_P = [
 const P_COLOR = { Passion:"#E8593C", Pain:"#C9922F", Pattern:"#2A9D8F", Practice:"#3478C0", Provision:"#8B5CF6", Personality:"#E8593C" };
 
 function FireBar({ value, max=5 }) {
-  const numVal = Math.max(0, parseFloat(value) || 0);
-  const threshold = max <= 5 ? numVal : (numVal / max * 5);
   return (
     <div style={{display:"flex",alignItems:"center",gap:3}}>
       {[1,2,3,4,5].map(n=>(
-        <span key={n} style={{fontSize:"0.9rem",color:threshold>=n?"#E8593C":"#3D3228"}}>🔥</span>
+        <span key={n} style={{fontSize:"0.9rem",color:(max<=5?(parseFloat(value)||0):(parseFloat(value)||0)/max*5)>=n?"#E8593C":"#3D3228"}}>🔥</span>
       ))}
-      <span style={{fontSize:"0.72rem",color:"var(--smoke)",marginLeft:4}}>{numVal}/{max}</span>
+      <span style={{fontSize:"0.72rem",color:"var(--smoke)",marginLeft:4}}>{parseFloat(value)||0}/{max}</span>
     </div>
   );
 }
