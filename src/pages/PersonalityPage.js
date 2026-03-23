@@ -51,6 +51,13 @@ export default function PersonalityPage({ data, update }) {
     reader.readAsDataURL(file);
   };
 
+  const [saved, setSaved] = useState(false);
+  const handleSave = () => {
+    update({ ...data, personality: { ...(data.personality||{}), ...personality } });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
   return (
     <div>
       <div className="page-header">
