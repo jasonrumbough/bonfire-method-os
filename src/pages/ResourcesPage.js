@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../utils/supabase";
 
 const RESOURCE_TYPES = [
-  { key:"book",    label:"Books",     icon:"📚" },
-  { key:"article", label:"Articles",  icon:"📄" },
-  { key:"podcast", label:"Podcasts",  icon:"🎙" },
-  { key:"video",   label:"Videos",    icon:"▶️" },
-  { key:"practice",label:"Practices", icon:"🔥" },
+  { key:"book",    label:"Books",     icon:"ð" },
+  { key:"article", label:"Articles",  icon:"ð" },
+  { key:"podcast", label:"Podcasts",  icon:"ð" },
+  { key:"video",   label:"Videos",    icon:"â¶ï¸" },
+  { key:"practice",label:"Practices", icon:"ð¥" },
 ];
 
 function todayKey() { return new Date().toISOString().split('T')[0]; }
@@ -26,7 +26,7 @@ export default function ResourcesPage({ data }) {
       const prompt = 'Based on this leader\'s current state, suggest a Spotify focus playlist. ' +
         'Spark statement: "' + sparkStatement + '". ' +
         'Overall score: ' + overall.toFixed(1) + '/5. ' +
-        'Respond ONLY with valid JSON (no markdown): { "rationale": "1-2 sentence explanation of why these tracks fit this leader right now", "searchQuery": "spotify search string for this vibe", "tracks": [ { "title": "Song Title", "artist": "Artist Name", "emoji": "🔥", "vibe": "one word vibe" } ] } with exactly 6 tracks.';
+        'Respond ONLY with valid JSON (no markdown): { "rationale": "1-2 sentence explanation of why these tracks fit this leader right now", "searchQuery": "spotify search string for this vibe", "tracks": [ { "title": "Song Title", "artist": "Artist Name", "emoji": "ð¥", "vibe": "one word vibe" } ] } with exactly 6 tracks.';
       const apiRes = await fetch(SUPABASE_URL + '/functions/v1/coach', {
         method: 'POST',
         headers: {'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY},
@@ -123,7 +123,7 @@ Generate a curated daily resource list. Return ONLY valid JSON, no markdown, no 
     },
     {
       "type": "podcast",
-      "title": "Podcast Name — Episode Title",
+      "title": "Podcast Name â Episode Title",
       "author": "host name",
       "url": "https://open.spotify.com/show/... or https://podcasts.apple.com/... or real show URL",
       "why": "why this helps",
@@ -131,7 +131,7 @@ Generate a curated daily resource list. Return ONLY valid JSON, no markdown, no 
     },
     {
       "type": "podcast",
-      "title": "Second Podcast — Episode Title",
+      "title": "Second Podcast â Episode Title",
       "author": "host name",
       "url": "https://open.spotify.com/show/... or podcast homepage URL",
       "why": "why this helps",
@@ -150,7 +150,7 @@ Generate a curated daily resource list. Return ONLY valid JSON, no markdown, no 
 
 IMPORTANT: Every resource must have a real, working URL. For books use Amazon search or Goodreads. For podcasts use Spotify or Apple Podcasts. For articles use the real publication URL. For practices link to a relevant resource.`;
 
-    const scripturePrompt = `A leader with biggest needs: ${gapStr || 'leadership development'} — ${identityStr ? 'working in ' + identityStr : ''}.
+    const scripturePrompt = `A leader with biggest needs: ${gapStr || 'leadership development'} â ${identityStr ? 'working in ' + identityStr : ''}.
 Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV or NIV)","application":"2-3 sentences applying this to their biggest need"}`;
 
     try {
@@ -197,7 +197,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
     setTimeout(generate, 50);
   };
 
-  const typeIcon = (type) => RESOURCE_TYPES.find(t=>t.key===type)?.icon || '🔥';
+  const typeIcon = (type) => RESOURCE_TYPES.find(t=>t.key===type)?.icon || 'ð¥';
   const typeLabel = (type) => RESOURCE_TYPES.find(t=>t.key===type)?.label?.slice(0,-1) || type;
   const filtered = resources?.resources?.filter(r => activeType === 'all' || r.type === activeType) || [];
 
@@ -222,15 +222,13 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           </div>
           <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>
             Curated daily for your biggest growth areas
-            {lastGenerated && <span> · {lastGenerated}</span>}
+            {lastGenerated && <span> Â· {lastGenerated}</span>}
           </div>
         </div>
         <button className="btn btn-ghost btn-sm" onClick={refresh} disabled={loading} style={{ fontSize:"0.78rem" }}>
-          {loading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↻ Refresh"}
+          {loading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "â» Refresh"}
         </button>
       </div>
-
-
 
       {resources && (
         <div>
@@ -238,11 +236,11 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
           {/* Scripture */}
           {scripture && (
             <div className="card" style={{ marginBottom:"1rem", background:"rgba(42,157,143,0.06)", border:"1px solid rgba(42,157,143,0.2)" }}>
-              <div style={{ fontSize:"0.65rem", color:"#2A9D8F", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>📖 Scripture for Today</div>
+              <div style={{ fontSize:"0.65rem", color:"#2A9D8F", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>ð Scripture for Today</div>
               <div style={{ fontFamily:"var(--font-display)", fontSize:"0.9rem", color:"var(--pale)", fontStyle:"italic", lineHeight:1.7, marginBottom:8 }}>
                 "{scripture.text}"
               </div>
-              <div style={{ fontSize:"0.78rem", color:"#2A9D8F", fontWeight:600, marginBottom:8 }}>— {scripture.reference}</div>
+              <div style={{ fontSize:"0.78rem", color:"#2A9D8F", fontWeight:600, marginBottom:8 }}>â {scripture.reference}</div>
               <div style={{ fontSize:"0.8rem", color:"var(--fog)", lineHeight:1.6, borderTop:"1px solid rgba(42,157,143,0.15)", paddingTop:8 }}>
                 {scripture.application}
               </div>
@@ -253,12 +251,12 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
         <div className="card" style={{marginBottom:"1rem"}}>
           <div className="card-header">
             <div>
-              <div className="card-title">🎵 Your Focus Playlist</div>
+              <div className="card-title">ðµ Your Focus Playlist</div>
               <div className="card-sub" style={{marginTop:2}}>Curated by AI based on your current scores and season</div>
             </div>
             <button className="btn btn-ghost btn-sm" onClick={generatePlaylist} disabled={playlistLoading}
               style={{fontSize:"0.75rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
-              {playlistLoading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "↺ Refresh"}
+              {playlistLoading ? <><span className="spinner" style={{width:10,height:10}}/> Generating...</> : "âº Refresh"}
             </button>
           </div>
           {playlist ? (
@@ -270,14 +268,14 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
                 {(playlist.tracks||[]).map((t,i)=>(
                   <a key={i} href={"https://open.spotify.com/search/"+encodeURIComponent((t.title||"")+" "+(t.artist||""))} target="_blank" rel="noreferrer"
                     style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",background:"var(--ash)",borderRadius:8,textDecoration:"none",cursor:"pointer"}}>
-                    <span style={{fontSize:"1rem",minWidth:20,textAlign:"center"}}>{t.emoji||"🎵"}</span>
+                    <span style={{fontSize:"1rem",minWidth:20,textAlign:"center"}}>{t.emoji||"ðµ"}</span>
                     <div style={{flex:1}}>
                       <div style={{fontSize:"0.82rem",color:"var(--pale)",fontWeight:500}}>{t.title}</div>
                       <div style={{fontSize:"0.72rem",color:"var(--smoke)"}}>{t.artist}</div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
                       <div style={{fontSize:"0.68rem",color:"var(--ember)",padding:"2px 8px",background:"rgba(232,89,60,0.1)",borderRadius:12}}>{t.vibe}</div>
-                      <span style={{fontSize:"0.75rem",color:"#1DB954"}}>↗</span>
+                      <span style={{fontSize:"0.75rem",color:"#1DB954"}}>â</span>
                     </div>
                   </a>
                 ))}
@@ -288,9 +286,12 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>Curating your playlist...</div>
           ) : (
             <div style={{textAlign:"center",padding:"1.5rem",color:"var(--smoke)",fontSize:"0.875rem"}}>
-              No playlist yet — click Refresh to generate one based on your current scores.
+              No playlist yet â click Refresh to generate one based on your current scores.
             </div>
           )}
+        </div>
+      )}
+
 
 
       {/* Loading */}
@@ -303,8 +304,9 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
 
       {resources && (
         <div>
+          {/* Type filter tabs */}
           <div style={{ display:"flex", gap:6, marginBottom:"1rem", flexWrap:"wrap" }}>
-            {[{key:'all',label:'All',icon:'🔥'},...RESOURCE_TYPES].map(t=>(
+            {[{key:'all',label:'All',icon:'ð¥'},...RESOURCE_TYPES].map(t=>(
               <button key={t.key} onClick={()=>setActiveType(t.key)}
                 style={{ padding:"4px 12px", borderRadius:20, border:"1px solid",
                   borderColor:activeType===t.key?"var(--ember)":"var(--ash)",
@@ -334,7 +336,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
                         style={{ fontFamily:"var(--font-display)", fontSize:"1rem", color:"var(--cream)", textDecoration:"none", display:"block", marginBottom:2, lineHeight:1.3 }}
                         onMouseEnter={e=>e.currentTarget.style.color='var(--ember-light)'}
                         onMouseLeave={e=>e.currentTarget.style.color='var(--cream)'}>
-                        {r.title} ↗
+                        {r.title} â
                       </a>
                       <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>{r.author}</div>
                     </div>
@@ -342,7 +344,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
                       style={{ flexShrink:0, marginLeft:12, padding:"5px 12px", background:"rgba(232,89,60,0.12)", border:"1px solid rgba(232,89,60,0.25)", borderRadius:6, color:"var(--ember-light)", fontSize:"0.72rem", textDecoration:"none", whiteSpace:"nowrap" }}
                       onMouseEnter={e=>e.currentTarget.style.background='rgba(232,89,60,0.25)'}
                       onMouseLeave={e=>e.currentTarget.style.background='rgba(232,89,60,0.12)'}>
-                      Open →
+                      Open â
                     </a>
                   </div>
                   <div style={{ fontSize:"0.82rem", color:"var(--fog)", lineHeight:1.65, marginBottom:10 }}>{r.why}</div>
@@ -350,6 +352,9 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
                     <div style={{ fontSize:"0.62rem", color:"var(--ember)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:4 }}>This week's takeaway</div>
                     <div style={{ fontSize:"0.82rem", color:"var(--pale)", lineHeight:1.6 }}>{r.takeaway}</div>
                   </div>
+        </div>
+      )}
+
                 </div>
               );
             })}
@@ -359,11 +364,9 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
             <div className="card" style={{ textAlign:"center", padding:"2rem", color:"var(--smoke)", fontSize:"0.82rem" }}>
               No resources found for this filter.
             </div>
+          )}
         </div>
       )}
-
-      </div>
-    </div>
     </div>
   );
 }
