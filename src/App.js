@@ -266,7 +266,7 @@ export default function App() {
     switch (page) {
       case "dashboard":   return <Dashboard    data={data} update={update} setPage={setPage} />;
       case "spark":       return <SparkPage    data={data} update={update} />;
-      case "air":       return <AirPage data={userData} setPage={setPage} />;
+      case "air":         return <AirPage      data={data} update={update} setPage={setPage} />;
       case "systems":     return <SystemsPage  data={data} update={update} setPage={setPage} />;
       case "tend":       return <AuditPage    data={data} update={update} initialTab="overview" setPage={setPage} />;
       case "air":         return <AirPage      data={data} update={update} />;
