@@ -3,7 +3,6 @@ import { useState, useRef } from "react";
 const TYPES = ["MBTI (e.g., INTJ)", "DiSC (e.g., High-D)", "Enneagram (e.g., Type 3)", "StrengthsFinder", "KOLBE", "Other"];
 
 export default function PersonalityPage({ data, update }) {
-  const [saved, setSaved] = useState(false);
   const personality = data.personality || {};
   const [parsing, setParsing] = useState(false);
   const [parseResult, setParseResult] = useState("");
