@@ -49,7 +49,12 @@ export default function AuditPage({ data, update, setPage }) {
   const today = new Date().toISOString().split("T")[0];
   const todayLabel = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
   const [tf, setTf] = useState("daily_am");
-  const [scores, setScores] = useState(() => ({ ...(data.auditScores||{}) }));
+  const [scores, setScores] = useState(() => {
+    // Reset scores daily — don't carry over previous day's ratings
+    const today = new Date().toISOString().split("T")[0];
+    const lastSaved = data.lastAuditDate || "";
+    return lastSaved === today ? (data.auditScores||{}) : {};
+  });
   const [journal, setJournal] = useState(() => ({ ...(data.tendJournal||{}) }));
   const [priorities, setPriorities] = useState(["","",""]);
   const [saved, setSaved] = useState(false);
@@ -71,6 +76,7 @@ export default function AuditPage({ data, update, setPage }) {
     update({
       ...data,
       auditScores: scores,
+      lastAuditDate: today,
       tendJournal: journal,
       allAudits: {
         ...allAudits,
