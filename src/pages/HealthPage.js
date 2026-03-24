@@ -1,3 +1,5 @@
+import React from "react";
+import { SUPABASE_ANON_KEY } from "../utils/supabase";
 import { useState } from "react";
 import ScoreSlider from "../components/ScoreSlider";
 import HealthRing from "../components/HealthRing";
@@ -209,15 +211,77 @@ export default function HealthPage({ data, update }) {
             </select>
           </div>
         </div>
-        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-          <button className="btn btn-primary" onClick={() => update({ ...data, tendSummary: { ...(data.tendSummary||{}), enabled: true } })}>
+        <div style={{ display:"flex", gap:10, alignItems:"center", flexWrap:"wrap" }}>
+          <button className="btn btn-primary" onClick={async () => {
+            const ts = { ...(data.tendSummary||{}), enabled: true };
+            update({ ...data, tendSummary: ts });
+            // Send test email immediately
+            const today = new Date().toISOString().split("T")[0];
+            const allAudits = data.allAudits || {};
+            const todayEntries = Object.entries(allAudits)
+              .filter(([k]) => k.startsWith(today))
+              .map(([k,v]) => v);
+            const checkins = todayEntries.map(e =>
+              `<strong>${e.timeframe||"Check-in"}</strong> — Overall: ${e.overall||"—"} | Spark: ${e.spark||"—"} | Systems: ${e.systems||"—"} | AIR: ${e.air||"—"}`
+            ).join("<br>") || "No check-ins recorded today yet.";
+            const priorityList = [...new Set(todayEntries.flatMap(e => e.priorities||[]).filter(Boolean))];
+            const priorities = priorityList.length ? priorityList.map((p,i) => `${i+1}. ${p}`).join("<br>") : "None set";
+            const winsList = todayEntries.map(e=>e.wins).filter(Boolean);
+            const wins = winsList.length ? winsList.join("<br>") : "None recorded yet — add wins in your next check-in";
+            const latestEntry = todayEntries[todayEntries.length - 1] || {};
+            const sc = data.auditScores || {};
+            const syAvg = (keys) => {
+              const vals = keys.map(k => sc[k]).filter(Boolean);
+              return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length/2).toFixed(1) : "—";
+            };
+            const systems = [
+              `Structure: ${syAvg(["sy1","sy2"])}/5`,
+              `Yield: ${syAvg(["sy3","sy4"])}/5`,
+              `Support: ${syAvg(["sy5","sy6"])}/5`,
+              `Time: ${syAvg(["sy7","sy8"])}/5`,
+              `Energy: ${syAvg(["sy9","sy10"])}/5`,
+              `Money: ${syAvg(["sy11","sy12"])}/5`,
+              `Story: ${syAvg(["sy13","sy14"])}/5`,
+            ].join("<br>");
+            try {
+              const res = await fetch("https://rqbsyadjyvzbbirsdfan.supabase.co/functions/v1/notify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${SUPABASE_ANON_KEY}` },
+                body: JSON.stringify({ type: "daily_summary", email: ts.email || data.profile?.email, spark_statement: data.sparkStatement||"", checkins, priorities, wins, systems })
+              });
+              const result = await res.json();
+              if (result.ok) alert("Daily summary enabled! Test email sent to " + (ts.email || "your email"));
+              else alert("Enabled but email failed: " + JSON.stringify(result));
+            } catch(e) { alert("Enabled! Email error: " + e.message); }
+          }}>
             Enable Daily Summary
           </button>
-          {(data.tendSummary?.enabled) && (
+          {(data.tendSummary?.enabled) && (<>
+            <button className="btn btn-ghost btn-sm" onClick={async () => {
+              const today = new Date().toISOString().split("T")[0];
+              const allAudits = data.allAudits || {};
+              const todayEntries = Object.entries(allAudits).filter(([k]) => k.startsWith(today)).map(([k,v]) => v);
+              const checkins2 = todayEntries.map(e =>
+                `<strong>${e.timeframe||"Check-in"}</strong> — Overall: ${e.overall||"—"} | Spark: ${e.spark||"—"} | Systems: ${e.systems||"—"}`
+              ).join("<br>") || "No check-ins recorded today yet.";
+              const pList = [...new Set(todayEntries.flatMap(e => e.priorities||[]).filter(Boolean))];
+              const priorities2 = pList.length ? pList.map((p,i) => `${i+1}. ${p}`).join("<br>") : "None set";
+              const wList = todayEntries.map(e=>e.wins).filter(Boolean);
+              const wins2 = wList.length ? wList.join("<br>") : "None recorded yet";
+              const sc2 = data.auditScores || {};
+              const syAvg2 = (keys) => { const vals = keys.map(k=>sc2[k]).filter(Boolean); return vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length/2).toFixed(1):"—"; };
+              const systems2 = [`Structure: ${syAvg2(["sy1","sy2"])}/5`,`Yield: ${syAvg2(["sy3","sy4"])}/5`,`Time: ${syAvg2(["sy7","sy8"])}/5`,`Energy: ${syAvg2(["sy9","sy10"])}/5`].join("<br>");
+              await fetch("https://rqbsyadjyvzbbirsdfan.supabase.co/functions/v1/notify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${SUPABASE_ANON_KEY}` },
+                body: JSON.stringify({ type: "daily_summary", email: data.tendSummary?.email || data.profile?.email, spark_statement: data.sparkStatement||"", checkins: checkins2, priorities: priorities2, wins: wins2, systems: systems2 })
+              });
+              alert("Test email sent!");
+            }}>Send Test</button>
             <button className="btn btn-ghost" onClick={() => update({ ...data, tendSummary: { ...(data.tendSummary||{}), enabled: false } })}>
               Disable
             </button>
-          )}
+          </>)}
         </div>
       </div>
 
