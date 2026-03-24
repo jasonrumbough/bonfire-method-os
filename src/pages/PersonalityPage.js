@@ -90,10 +90,27 @@ export default function PersonalityPage({ data, update }) {
         <div className="two-col">
           <div className="form-group">
             <label>Assessment Type</label>
-            <select value={personality.assessmentType || ""} onChange={e => save("assessmentType", e.target.value)}>
-              <option value="">Select...</option>
-              {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.5rem",marginTop:4}}>
+              {TYPES.map(t => {
+                const selected = (personality.assessmentTypes||[personality.assessmentType].filter(Boolean)).includes(t);
+                return (
+                  <div key={t} onClick={() => {
+                    const current = personality.assessmentTypes || (personality.assessmentType ? [personality.assessmentType] : []);
+                    const next = selected ? current.filter(x=>x!==t) : [...current, t];
+                    save("assessmentTypes", next);
+                  }} style={{
+                    padding:"0.4rem 0.75rem",
+                    borderRadius:20,
+                    fontSize:"0.8rem",
+                    cursor:"pointer",
+                    background: selected ? "var(--ember)" : "var(--ash)",
+                    color: selected ? "#fff" : "var(--smoke)",
+                    border: selected ? "1px solid var(--ember)" : "1px solid var(--char)",
+                    transition:"all 0.15s"
+                  }}>{t}</div>
+                );
+              })}
+            </div>
           </div>
           <div className="form-group">
             <label>Your Type / Profile Code</label>
