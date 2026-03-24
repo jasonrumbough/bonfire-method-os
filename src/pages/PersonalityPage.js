@@ -108,7 +108,7 @@ export default function PersonalityPage({ data, update }) {
       </div>
       <div style={{ display:"flex", justifyContent:"flex-end", marginTop:"1.5rem", gap:8, alignItems:"center" }}>
         {saved && <span style={{ fontSize:"0.78rem", color:"#5DCAA5" }}>✓ Saved</span>}
-        <button className="btn btn-primary" onClick={handleSave}>💾 Save Personality Profile</button>
+        <button className="btn btn-primary" onClick={handleSave}>Save Profile</button>
       </div>
     </div>
   );
