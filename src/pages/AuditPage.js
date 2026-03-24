@@ -56,7 +56,7 @@ export default function AuditPage({ data, update, setPage }) {
     return lastSaved === today ? (data.auditScores||{}) : {};
   });
   const [journal, setJournal] = useState(() => ({ ...(data.tendJournal||{}) }));
-  const [priorities, setPriorities] = useState(["","",""]);
+  const [priorities, setPriorities] = useState(() => data.tendPriorities || ["","",""]);
   const [saved, setSaved] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summary, setSummary] = useState(null);
@@ -78,10 +78,11 @@ export default function AuditPage({ data, update, setPage }) {
       auditScores: scores,
       lastAuditDate: today,
       tendJournal: journal,
+      tendPriorities: priorities,
       allAudits: {
         ...allAudits,
         [today]: { ...allAudits[today], overall, spark:spAvg.toFixed(1), systems:syAvg.toFixed(1), air:airAvg.toFixed(1),
-          wins: journal.wins||"", challenges: journal.challenges||"", lessons: journal.lessons||"", timeframe: tf }
+          wins: journal.wins||"", challenges: journal.challenges||"", lessons: journal.lessons||"", timeframe: tf, priorities: priorities.filter(Boolean), notes: journal.session_notes||"" }
       }
     });
     setSaved(true);
@@ -92,7 +93,8 @@ export default function AuditPage({ data, update, setPage }) {
     setSummaryLoading(true);
     const stmt = data.sparkStatement || "";
     const syScores = AUDIT_QUESTIONS.systems.map(q=>q.p+":"+( scores[q.id]||0)).join(", ");
-    const prompt = `Leader spark: "${stmt}". Today (${todayLabel}). SYSTEMS scores: ${syScores}. Priorities: ${priorities.filter(Boolean).join(", ")||"not set"}. Journal notes: ${journal.notes_am||"none"}.\n\nWrite a focused 2-paragraph coaching insight for today. Paragraph 1: what's aligned. Paragraph 2: what needs the most attention. Be direct and specific.`;
+    const recentNotes = (data.notes||[]).slice(0,3).map(n=>n.text||"").filter(Boolean).join("; ")||"none";
+    const prompt = `You are a Bonfire Method coach who knows this leader well. Spark Statement: "${stmt}". Today: ${todayLabel}. SYSTEMS scores: ${syScores}. Top priorities: ${priorities.filter(Boolean).join(", ")||"not set"}. Morning reflections: ${journal.notes_am||"none"}. Recent notes from this leader: ${recentNotes}. Personality: ${(data.personality||{}).type||"not specified"}. Strengths: ${(data.personality||{}).strengths||"not specified"}.\n\nWrite a focused 2-paragraph coaching insight. Paragraph 1: what is genuinely aligned based on their specific scores and priorities. Paragraph 2: the single most important thing to tend to today. Be specific to THIS leader - reference their actual priorities and spark statement. Never use generic advice.`;
     try {
       const r = await fetch(SUPABASE_URL+"/functions/v1/coach",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({messages:[{role:"user",content:prompt}],system:"You are a direct Bonfire Method coach. Be specific, not generic."})});
       const d = await r.json();
@@ -115,7 +117,7 @@ export default function AuditPage({ data, update, setPage }) {
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {saved && <span style={{fontSize:"0.78rem",color:"#5DCAA5"}}>✓ Saved</span>}
-          <button className="btn btn-primary" onClick={save}>💾 Save</button>
+          <button className="btn btn-primary" onClick={save}>Save</button>
         </div>
       </div>
 
@@ -410,13 +412,19 @@ Continue: ..."/></div>
           </Section>
         </div>
       )}
+      {/* Session notes */}
+      <div className="card" style={{marginTop:"0.5rem"}}>
+        <div className="card-title" style={{marginBottom:8}}>📝 Session Notes</div>
+        <textarea className="textarea" rows={3} value={journal.session_notes||""} onChange={e=>setJ("session_notes",e.target.value)} placeholder="Any additional thoughts, observations, or reflections from this check-in..."/>
+      </div>
+
       {/* Save button at bottom */}
       <div className="card" style={{marginTop:"0.5rem"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <span style={{fontSize:"0.78rem",color:"var(--smoke)"}}>Saves to your profile and history</span>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             {saved && <span style={{fontSize:"0.78rem",color:"#5DCAA5"}}>✓ Saved</span>}
-            <button className="btn btn-primary" onClick={save}>💾 Save Check-In</button>
+            <button className="btn btn-primary" onClick={save}>Save Check-In</button>
           </div>
         </div>
       </div>
