@@ -6,22 +6,28 @@ export default function HistoryPage({ data, update }) {
   const history = data.history || [];
   // Merge TEND check-ins from allAudits into history display
   const allAudits = data.allAudits || {};
-  const tendEntries = Object.entries(allAudits).map(([date, audit]) => ({
-    date,
-    note: [
-      audit.priorities?.length ? "Priorities: " + audit.priorities.join(", ") : "",
-      audit.wins ? "Wins: " + audit.wins : "",
-      audit.notes ? "Notes: " + audit.notes : "",
-    ].filter(Boolean).join(" | ") || "TEND check-in",
-    overall: audit.overall || "",
-    spark: audit.spark || "",
-    systems: audit.systems || "",
-    air: audit.air || "",
-    timeframe: audit.timeframe || "Daily",
-    isTend: true,
-  }));
-  const tendDates = new Set(tendEntries.map(e => e.date));
-  const manualHistory = history.filter(h => !tendDates.has(h.date));
+  const tendEntries = Object.entries(allAudits).map(([key, audit]) => {
+    // key is either "date" (old) or "date:timeframe" (new)
+    const date = audit.date || key.split(":")[0];
+    return {
+      date,
+      key,
+      note: [
+        audit.timeframe ? audit.timeframe : "",
+        audit.priorities?.length ? "Priorities: " + audit.priorities.join(", ") : "",
+        audit.wins ? "Wins: " + audit.wins : "",
+        audit.notes ? "Notes: " + audit.notes : "",
+      ].filter(Boolean).join(" | ") || "TEND check-in",
+      overall: isNaN(parseFloat(audit.overall)) ? 0 : parseFloat(audit.overall),
+      spark: audit.spark || "",
+      systems: audit.systems || "",
+      air: audit.air || "",
+      timeframe: audit.timeframe || "Daily",
+      isTend: true,
+    };
+  });
+  const tendKeys = new Set(tendEntries.map(e => e.key));
+  const manualHistory = history.filter(h => !tendKeys.has(h.date));
   const allHistory = [...manualHistory, ...tendEntries];
     const [selectedEntry, setSelectedEntry] = useState(null);
 const [modal, setModal] = useState(false);
@@ -36,25 +42,54 @@ const [modal, setModal] = useState(false);
     setModal(true);
   };
   const openEdit = (entry) => {
-    setEditIdx(history.indexOf(entry));
-    setForm({ date: entry.date ? entry.date.split("T")[0] : "", note: entry.note || "", overall: entry.overall || 3 });
+    setEditIdx(entry.isTend ? entry.key : history.indexOf(entry));
+    setForm({
+      date: entry.date ? entry.date.split("T")[0] : "",
+      note: entry.note || "",
+      overall: entry.overall || 3,
+      timeframe: entry.timeframe || "",
+      priorities: (entry.note||"").includes("Priorities:") ? entry.note.split("Priorities:")[1]?.split("|")[0]?.trim() || "" : "",
+      wins: entry.wins || "",
+      sessionNotes: entry.sessionNotes || "",
+      isTend: entry.isTend || false,
+      key: entry.key || null,
+    });
     setModal(true);
   };
 
   const save = () => {
-    let next;
-    if (editIdx !== null) {
-      next = history.map((h, i) => i === editIdx ? { ...h, date: form.date, note: form.note, overall: form.overall } : h);
+    if (form.isTend && form.key) {
+      const updatedAudits = { ...(data.allAudits||{}) };
+      updatedAudits[form.key] = {
+        ...(updatedAudits[form.key]||{}),
+        overall: form.overall,
+        wins: form.wins,
+        notes: form.sessionNotes,
+        priorities: form.priorities ? form.priorities.split(",").map(p=>p.trim()).filter(Boolean) : [],
+        date: form.date,
+      };
+      update({ ...data, allAudits: updatedAudits });
     } else {
-      next = [...history, { date: form.date, note: form.note, overall: form.overall, scores: {} }];
+      let next;
+      if (editIdx !== null) {
+        next = history.map((h, i) => i === editIdx ? { ...h, date: form.date, note: form.note, overall: form.overall } : h);
+      } else {
+        next = [...history, { date: form.date, note: form.note, overall: form.overall, scores: {} }];
+      }
+      next.sort((a, b) => new Date(b.date) - new Date(a.date));
+      update({ ...data, history: next });
     }
-    next.sort((a, b) => new Date(b.date) - new Date(a.date));
-    update({ ...data, history: next });
     setModal(false);
   };
 
   const del = (entry) => {
-    update({ ...data, history: history.filter(h => h !== entry) });
+    if (entry.isTend) {
+      const next = { ...data.allAudits };
+      delete next[entry.key];
+      update({ ...data, allAudits: next });
+    } else {
+      update({ ...data, history: history.filter(h => h !== entry) });
+    }
   };
 
   return (
@@ -139,7 +174,14 @@ const [modal, setModal] = useState(false);
             <label>Overall Fire Score (0–10)</label>
             <ScoreSlider value={form.overall} onChange={v => setForm(f => ({ ...f, overall: v }))} />
           </div>
-          <div className="form-group"><label>Reflection / Note</label><textarea rows={4} value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="What was happening in this season?" /></div>
+          {form.isTend ? (<>
+            <div className="form-group"><label>Timeframe</label><input className="input" value={form.timeframe||""} readOnly style={{opacity:0.6}} /></div>
+            <div className="form-group"><label>Top Priorities (comma separated)</label><input className="input" value={form.priorities||""} onChange={e => setForm(f => ({ ...f, priorities: e.target.value }))} placeholder="e.g. Close deal, prep presentation" /></div>
+            <div className="form-group"><label>Wins</label><textarea className="textarea" rows={2} value={form.wins||""} onChange={e => setForm(f => ({ ...f, wins: e.target.value }))} placeholder="What went well?" /></div>
+            <div className="form-group"><label>Session Notes</label><textarea className="textarea" rows={3} value={form.sessionNotes||""} onChange={e => setForm(f => ({ ...f, sessionNotes: e.target.value }))} placeholder="Additional reflections..." /></div>
+          </>) : (
+            <div className="form-group"><label>Reflection / Note</label><textarea rows={4} value={form.note||""} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="What was happening in this season?" /></div>
+          )}
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
             <button className="btn btn-ghost" onClick={() => setModal(false)}>Cancel</button>
             <button className="btn btn-primary" onClick={save}>Save</button>
