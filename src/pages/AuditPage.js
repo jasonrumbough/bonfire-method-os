@@ -55,8 +55,16 @@ export default function AuditPage({ data, update, setPage }) {
     const lastSaved = data.lastAuditDate || "";
     return lastSaved === today ? (data.auditScores||{}) : {};
   });
-  const [journal, setJournal] = useState(() => ({ ...(data.tendJournal||{}) }));
-  const [priorities, setPriorities] = useState(() => data.tendPriorities || ["","",""]);
+  const [journal, setJournal] = useState(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const lastSaved = data.lastAuditDate || "";
+    return lastSaved === today ? { ...(data.tendJournal||{}) } : {};
+  });
+  const [priorities, setPriorities] = useState(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const lastSaved = data.lastAuditDate || "";
+    return lastSaved === today ? (data.tendPriorities || ["","",""]) : ["","",""];
+  });
   const [saved, setSaved] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summary, setSummary] = useState(null);
@@ -81,8 +89,8 @@ export default function AuditPage({ data, update, setPage }) {
       tendPriorities: priorities,
       allAudits: {
         ...allAudits,
-        [today]: { ...allAudits[today], overall, spark:spAvg.toFixed(1), systems:syAvg.toFixed(1), air:airAvg.toFixed(1),
-          wins: journal.wins||"", challenges: journal.challenges||"", lessons: journal.lessons||"", timeframe: tf, priorities: priorities.filter(Boolean), notes: journal.session_notes||"" }
+        [today+":"+tf]: { overall, spark:spAvg.toFixed(1), systems:syAvg.toFixed(1), air:airAvg.toFixed(1),
+          wins: journal.wins||"", challenges: journal.challenges||"", lessons: journal.lessons||"", timeframe: tf, priorities: priorities.filter(Boolean), notes: journal.session_notes||"", date: today }
       }
     });
     setSaved(true);
