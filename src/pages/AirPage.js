@@ -31,9 +31,9 @@ export default function AirPage({ data, setPage }) {
             <div className="page-title">AIR</div>
             <div className="page-desc">Audit. Invest. Reflect. The rhythm that keeps the fire breathing.</div>
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={()=>setPage&&setPage("audit")}
+          <button className="btn btn-ghost btn-sm" onClick={()=>setPage&&setPage("tend")}
             style={{fontSize:"0.78rem",color:"var(--ember)",borderColor:"rgba(232,89,60,0.4)"}}>
-            ✏️ Edit in Rhythm
+            ✏️ Edit in Tend
           </button>
         </div>
       </div>
@@ -86,11 +86,22 @@ export default function AirPage({ data, setPage }) {
           </div>
           {r.questions.map((q,i)=>{
             const ans = (air[r.key]||{})["q"+(i+1)]||"";
+            // For daily reflections, fall back to tendJournal data
+            const j = data.tendJournal || {};
+            const fallbacks = r.key === "daily" ? [
+              j.notes_am || j.what_matters || "",
+              j.energy || "",
+              j.who_needs || "",
+            ] : [];
+            const display = ans || fallbacks[i] || "";
             return (
               <div key={i} style={{marginBottom:10}}>
                 <div style={{fontSize:"0.75rem",color:"var(--smoke)",marginBottom:4}}>{q}</div>
-                {ans ? (
-                  <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.6,padding:"8px 12px",background:"var(--ash)",borderRadius:6}}>{ans}</div>
+                {display ? (
+                  <div style={{fontSize:"0.875rem",color:"var(--pale)",lineHeight:1.6,padding:"8px 12px",background:"var(--ash)",borderRadius:6}}>
+                    {display}
+                    {!ans && fallbacks[i] && <span style={{fontSize:"0.65rem",color:"var(--smoke)",marginLeft:6,opacity:0.7}}>(from TEND)</span>}
+                  </div>
                 ) : (
                   <div style={{fontSize:"0.78rem",color:"var(--smoke)",fontStyle:"italic"}}>No entry yet</div>
                 )}
