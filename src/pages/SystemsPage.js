@@ -49,7 +49,7 @@ export default function SystemsPage({ data, setPage }) {
           <div className="page-title">S.Y.S.T.E.M.S.</div>
           <div className="page-desc">The seven operational pillars — scores pulled from your Audit results.</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setPage("audit")}>
+        <button className="btn btn-primary" onClick={() => setPage("tend")}>
           Go to Audit →
         </button>
       </div>
@@ -59,7 +59,7 @@ export default function SystemsPage({ data, setPage }) {
           <div style={{ fontSize: "0.875rem", color: "var(--smoke)", marginBottom: 12 }}>
             No SYSTEMS audit data yet. Complete the SYSTEMS tab in the Audit section to populate scores here.
           </div>
-          <button className="btn btn-primary" onClick={() => setPage("audit")}>
+          <button className="btn btn-primary" onClick={() => setPage("tend")}>
             Start Audit →
           </button>
         </div>
@@ -113,7 +113,7 @@ export default function SystemsPage({ data, setPage }) {
       {hasAuditData && (
         <div style={{ textAlign: "center", padding: "1rem 0", fontSize: "0.78rem", color: "var(--smoke)" }}>
           Scores reflect your last saved audit.{" "}
-          <span style={{ color: "var(--ember-light)", cursor: "pointer" }} onClick={() => setPage("audit")}>
+          <span style={{ color: "var(--ember-light)", cursor: "pointer" }} onClick={() => setPage("tend")}>
             Update in Audit →
           </span>
         </div>
