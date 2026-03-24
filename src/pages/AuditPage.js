@@ -77,9 +77,9 @@ export default function AuditPage({ data, update, setPage }) {
 
   const save = () => {
     const allAudits = data.allAudits || {};
-    const spAvg = AUDIT_QUESTIONS.spark.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.spark.length;
-    const syAvg = AUDIT_QUESTIONS.systems.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.systems.length;
-    const airAvg = AUDIT_QUESTIONS.air.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.air.length;
+    const spAvg = AUDIT_QUESTIONS.spark.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.spark.length/2;
+    const syAvg = AUDIT_QUESTIONS.systems.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.systems.length/2;
+    const airAvg = AUDIT_QUESTIONS.air.reduce((a,q)=>a+(scores[q.id]||0),0)/AUDIT_QUESTIONS.air.length/2;
     const overall = ((spAvg+syAvg+airAvg)/3).toFixed(1);
     update({
       ...data,
