@@ -59,7 +59,7 @@ export default function NotesPage({ data, update }) {
     <div>
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <div className="page-title">Notes</div>
+          <div className="page-title">NOTES</div>
           <div className="page-desc">Capture insights, reflections, and ideas as they surface.</div>
         </div>
         <button className="btn btn-primary" onClick={openNew}>+ New Note</button>
