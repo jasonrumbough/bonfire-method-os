@@ -218,7 +218,7 @@ Return ONLY valid JSON: {"reference":"Book Ch:V","text":"full passage text (ESV 
 
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"1.25rem", flexWrap:"wrap", gap:10 }}>
         <div>
-          <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", color:"var(--cream)", marginBottom:4 }}>
+          <div style={{ fontFamily:"var(--font-display)", fontSize:"1.4rem", textTransform:"uppercase", color:"var(--cream)", marginBottom:4 }}>
             Resources
           </div>
           <div style={{ fontSize:"0.78rem", color:"var(--smoke)" }}>
