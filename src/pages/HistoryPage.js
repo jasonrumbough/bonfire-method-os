@@ -122,7 +122,7 @@ const [modal, setModal] = useState(false);
                   {entry.wins&&<div style={{fontSize:"0.72rem",color:"var(--fog)",marginTop:2,fontStyle:"italic"}}>"{entry.wins.substring(0,70)}{entry.wins.length>70?'…':''}"</div>}
                 </div>
                 <div style={{textAlign:"right",minWidth:40}}>
-                  <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--ember)"}}>{entry.overall||"—"}</div>
+                  <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--ember)"}}>{entry.overall||"—"}<span style={{fontSize:"0.7rem",color:"var(--smoke)"}}>/5</span></div>
                   <div style={{fontSize:"0.6rem",color:"var(--smoke)"}}>score</div>
                 </div>
               </div>
@@ -151,7 +151,7 @@ const [modal, setModal] = useState(false);
                 {entry.date ? new Date(entry.date).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" }) : "Unknown date"}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: entry.note ? 4 : 0 }}>
-                <span style={{ fontSize: "0.875rem", color: "var(--pale)" }}>Fire Score: </span>
+                <span style={{ fontSize: "0.875rem", color: "var(--pale)" }}>Fire Score </span>
                 <span style={{ color, fontWeight: 600, fontSize: "1rem" }}>{score.toFixed(1)}</span>
                 <span style={{ color: "var(--smoke)", fontSize: "0.78rem" }}>/5.0</span>
               </div>
@@ -196,7 +196,7 @@ const [modal, setModal] = useState(false);
               <button onClick={()=>setSelectedEntry(null)} style={{background:"none",border:"none",color:"var(--smoke)",cursor:"pointer",fontSize:"1.2rem"}}>✕</button>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:"1rem"}}>
-              {[["Overall Score",selectedEntry.overall+"/10"],["Spark",selectedEntry.spark+"/5"],["Structure",selectedEntry.structure+"/5"],["Energy",selectedEntry.energy+"/5"],["Support",selectedEntry.support+"/5"],["Time",selectedEntry.time+"/5"],["Money",selectedEntry.money+"/5"],["Story",selectedEntry.story+"/5"]].filter(([,v])=>v&&!v.startsWith("undefined")).map(([label,val])=>(
+              {[["Overall Score",selectedEntry.overall+"/5"],["Spark",selectedEntry.spark+"/5"],["Structure",selectedEntry.structure+"/5"],["Energy",selectedEntry.energy+"/5"],["Support",selectedEntry.support+"/5"],["Time",selectedEntry.time+"/5"],["Money",selectedEntry.money+"/5"],["Story",selectedEntry.story+"/5"]].filter(([,v])=>v&&!v.startsWith("undefined")).map(([label,val])=>(
                 <div key={label} style={{padding:"8px 12px",background:"var(--ash)",borderRadius:8}}>
                   <div style={{fontSize:"0.62rem",color:"var(--smoke)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:2}}>{label}</div>
                   <div style={{fontSize:"0.95rem",color:"var(--pale)",fontWeight:600}}>{val}</div>
