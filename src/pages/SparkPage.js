@@ -129,7 +129,7 @@ export default function SparkPage({ data, update, setPage }) {
           </div>
         ))}
         <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}>
-          <button className="btn btn-primary" onClick={save}>{saved?"✓ Saved":"💾 Save"}</button>
+          <button className="btn btn-primary" onClick={save}>{saved?"✓ Saved":"Save"}</button>
         </div>
       </div>
     </div>
