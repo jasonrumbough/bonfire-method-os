@@ -4,12 +4,31 @@ import ScoreSlider from "../components/ScoreSlider";
 
 export default function HistoryPage({ data, update }) {
   const history = data.history || [];
+  // Merge TEND check-ins from allAudits into history display
+  const allAudits = data.allAudits || {};
+  const tendEntries = Object.entries(allAudits).map(([date, audit]) => ({
+    date,
+    note: [
+      audit.priorities?.length ? "Priorities: " + audit.priorities.join(", ") : "",
+      audit.wins ? "Wins: " + audit.wins : "",
+      audit.notes ? "Notes: " + audit.notes : "",
+    ].filter(Boolean).join(" | ") || "TEND check-in",
+    overall: audit.overall || "",
+    spark: audit.spark || "",
+    systems: audit.systems || "",
+    air: audit.air || "",
+    timeframe: audit.timeframe || "Daily",
+    isTend: true,
+  }));
+  const tendDates = new Set(tendEntries.map(e => e.date));
+  const manualHistory = history.filter(h => !tendDates.has(h.date));
+  const allHistory = [...manualHistory, ...tendEntries];
     const [selectedEntry, setSelectedEntry] = useState(null);
 const [modal, setModal] = useState(false);
   const [editIdx, setEditIdx] = useState(null);
   const [form, setForm] = useState({ date: "", note: "", overall: 3 });
 
-  const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sorted = [...allHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const openAdd = () => {
     setEditIdx(null);
@@ -42,7 +61,7 @@ const [modal, setModal] = useState(false);
     <div>
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <div className="page-title">History</div>
+          <div className="page-title">HISTORY</div>
           <div className="page-desc">Your fire's journey — audit results, reflections, and milestones.</div>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>+ Add Entry</button>
