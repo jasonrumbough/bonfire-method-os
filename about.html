@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Jason Rumbough — The Bonfire Method</title>
+  <meta name="description" content="Jason Rumbough is a performance architect, author, and creator of The Bonfire Method. His story begins with burnout — and the framework that changed everything.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero { padding: 160px 0 80px; border-bottom: 1px solid var(--divider); }
+    .hero-grid { display: grid; grid-template-columns: 1fr auto; gap: 80px; align-items: end; }
+    .hero-photo {
+      width: 280px;
+      aspect-ratio: 3/4;
+      background: var(--char);
+      border: 1px solid var(--divider-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-photo-placeholder {
+      font-family: var(--font-display);
+      font-size: 72px;
+      font-weight: 600;
+      color: var(--ember);
+      opacity: 0.3;
+    }
+    .hero-photo::after {
+      content: 'Jason Rumbough';
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--smoke);
+    }
+
+    /* Story */
+    .story-section { border-bottom: 1px solid var(--divider); }
+    .story-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 80px; }
+    .story-body p {
+      font-size: 17px;
+      font-weight: 300;
+      color: var(--smoke);
+      line-height: 1.85;
+      margin-bottom: 24px;
+    }
+    .story-body p strong { color: var(--bone); font-weight: 400; }
+    .story-body p em { font-style: italic; color: var(--bone); }
+
+    .story-sidebar { padding-top: 8px; }
+    .credential-block {
+      padding: 28px 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .credential-block:last-child { border-bottom: none; }
+    .cred-label { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); margin-bottom: 8px; }
+    .cred-value { font-size: 15px; font-weight: 300; color: var(--smoke); line-height: 1.55; }
+
+    /* Timeline */
+    .timeline { border-bottom: 1px solid var(--divider); background: var(--coal); }
+    .timeline-list { list-style: none; }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 32px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--divider);
+      align-items: start;
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-year {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ember);
+      opacity: 0.7;
+      padding-top: 2px;
+    }
+    .timeline-title { font-size: 15px; font-weight: 500; color: var(--bone); margin-bottom: 4px; }
+    .timeline-desc { font-size: 14px; font-weight: 300; color: var(--smoke); line-height: 1.65; }
+
+    /* Speaking */
+    .speaking-section { border-bottom: 1px solid var(--divider); }
+    .topic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 40px; }
+    .topic-card {
+      padding: 36px 32px;
+      border: 1px solid var(--divider);
+      background: var(--coal);
+    }
+    .topic-card h4 { margin-bottom: 10px; }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-photo { width: 200px; }
+      .story-grid { grid-template-columns: 1fr; }
+      .timeline-item { grid-template-columns: 80px 1fr; }
+      .topic-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div data-animate>
+        <div class="t-eyebrow mb-8">About Jason Rumbough</div>
+        <h1 class="mb-8">Performance architect.<br>Author. <span class="t-display-italic">Burnout survivor.</span></h1>
+        <p class="t-lead" style="max-width:560px;">
+          Jason Rumbough spent 30 years in leadership — ministry, nonprofits, and enterprise sales — before hitting a wall so hard his body stopped working. That moment became the foundation of The Bonfire Method.
+        </p>
+      </div>
+      <div class="hero-photo" data-animate data-delay="0.2">
+        <div class="hero-photo-placeholder">JR</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="story-section">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-body" data-animate>
+        <div class="t-eyebrow mb-8">The Story</div>
+        <p>
+          It was 2020. The world had shut down, and I was sitting at my kitchen table trying to log my five-year-old into his online kindergarten class. The login information was on the counter — four feet away. <strong>I couldn't move.</strong>
+        </p>
+        <p>
+          Not "stuck" in the philosophical sense. Literally frozen. My body had decided it was done. What a therapist later described as a Psychogenic Non-Epileptic Event — a neurological shutdown caused by overwhelming psychological stress. My body's check engine light, finally forced on.
+        </p>
+        <p>
+          I had spent years doing what high performers are praised for doing: <em>working harder, pushing longer, carrying more.</em> From the outside, everything looked successful. Underneath, something was failing.
+        </p>
+        <div class="callout-quote">
+          <p>"I wasn't burned out because I lacked passion. I burned out because I lacked systems. That distinction changed everything."</p>
+          <cite>— Jason Rumbough</cite>
+        </div>
+        <p>
+          That realization became The Bonfire Method — a framework for building fires that last. Not through more discipline or more passion, but through the systems that sustain both. Spark. S.Y.S.T.E.M.S. AIR.
+        </p>
+        <p>
+          Today Jason works in enterprise sales at Flow Control Group while simultaneously building The Bonfire Method as a book, coaching platform, and consulting framework. The goal: impact one million leaders over 15 years.
+        </p>
+        <p>
+          He lives in Nashville, Tennessee with his family. He gets up at 5am, trains hard, and believes — with full seriousness — that <strong>sustainable impact requires sustainable leaders.</strong>
+        </p>
+      </div>
+      <div class="story-sidebar" data-animate data-delay="0.15">
+        <div class="credential-block">
+          <div class="cred-label">Based In</div>
+          <div class="cred-value">Nashville, Tennessee</div>
+        </div>
+        <div class="credential-block">
+          <div class="cred-label">Experience</div>
+          <div class="cred-value">30+ years in leadership, ministry, nonprofit, and enterprise sales</div>
+        </div>
+        <div class="credential-block">
+          <div class="cred-label">Current Role</div>
+          <div class="cred-value">Enterprise Sales, Flow Control Group + Creator, The Bonfire Method</div>
+        </div>
+        <div class="credential-block">
+          <div class="cred-label">Framework</div>
+          <div class="cred-value">The Bonfire Method — Spark · S.Y.S.T.E.M.S. · AIR</div>
+        </div>
+        <div class="credential-block">
+          <div class="cred-label">Mission</div>
+          <div class="cred-value">Impact 1 million leaders over 15 years through sustainable performance architecture</div>
+        </div>
+        <div class="credential-block">
+          <div class="cred-label">Contact</div>
+          <div class="cred-value"><a href="/cdn-cgi/l/email-protection#127873617d7c52667a77707d7c747b60777f77667a7d763c717d7f" style="color:var(--ember);"><span class="__cf_email__" data-cfemail="7e141f0d11103e0a161b1c111018170c1b131b0a16111a501d1113">[email&#160;protected]</span></a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline">
+  <div class="container">
+    <div class="t-eyebrow mb-12" data-animate>The Road Here</div>
+    <ul class="timeline-list">
+      <li class="timeline-item" data-animate>
+        <div class="timeline-year">Early career</div>
+        <div>
+          <div class="timeline-title">Ministry & Nonprofit Leadership</div>
+          <div class="timeline-desc">Nearly three decades leading churches, nonprofits, and community organizations. Built multiple teams from scratch. Learned — often the hard way — what sustains organizational health and what quietly destroys it.</div>
+        </div>
+      </li>
+      <li class="timeline-item" data-animate>
+        <div class="timeline-year">2020</div>
+        <div>
+          <div class="timeline-title">The Wall</div>
+          <div class="timeline-desc">A Psychogenic Non-Epileptic Event caused by burnout forces a complete stop. Begins therapy, starts rebuilding. The experience becomes the foundation of everything that follows.</div>
+        </div>
+      </li>
+      <li class="timeline-item" data-animate>
+        <div class="timeline-year">2021–23</div>
+        <div>
+          <div class="timeline-title">Building the Framework</div>
+          <div class="timeline-desc">Develops the Bonfire Method through coaching, research, and lived experience. Tests it with leaders across ministry, corporate, and nonprofit contexts. The framework earns its credibility through results.</div>
+        </div>
+      </li>
+      <li class="timeline-item" data-animate>
+        <div class="timeline-year">2024</div>
+        <div>
+          <div class="timeline-title">Enterprise Sales + Performance Architecture</div>
+          <div class="timeline-desc">Joins Flow Control Group in enterprise sales while piloting the Bonfire Method framework internally. Begins applying the methodology to organizational performance at scale.</div>
+        </div>
+      </li>
+      <li class="timeline-item" data-animate>
+        <div class="timeline-year">2026</div>
+        <div>
+          <div class="timeline-title">The Book + Platform Launch</div>
+          <div class="timeline-desc"><em>The Bonfire Method</em> publishes. The coaching platform, Spark Audit, and consulting practice launch. The mission to impact one million leaders begins in earnest.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- SPEAKING -->
+<section class="speaking-section" id="speaking">
+  <div class="container">
+    <div data-animate>
+      <div class="t-eyebrow mb-8">Speaking</div>
+      <h2 class="mb-8">Jason speaks on the topics<br>leaders won't say out loud.</h2>
+      <p class="t-lead" style="max-width:560px; margin-bottom: 0;">Leadership burnout. Organizational sustainability. What it actually takes to build fires that last. Audiences leave with a framework — not just inspiration.</p>
+    </div>
+    <div class="topic-grid">
+      <div class="topic-card" data-animate>
+        <div class="tag mb-6">Keynote</div>
+        <h4 class="mb-4">The Bonfire Method: Build a Fire That Lasts</h4>
+        <p class="t-body">The flagship talk. Passion isn't the problem — systems are. Jason walks audiences through the three elements of sustainable leadership, backed by research and his own survival story.</p>
+      </div>
+      <div class="topic-card" data-animate data-delay="0.1">
+        <div class="tag mb-6">Workshop</div>
+        <h4 class="mb-4">The Spark Audit: Discover Your Purpose</h4>
+        <p class="t-body">A live, interactive workshop where participants complete the Spark Audit and walk away with a defined Spark Statement. Powerful for leadership teams and organizational offsites.</p>
+      </div>
+      <div class="topic-card" data-animate>
+        <div class="tag mb-6">Keynote</div>
+        <h4 class="mb-4">Second-Generation Sustainability</h4>
+        <p class="t-body">Built for founders and senior leaders. How to build organizations that outlive their founders — and why the systems you build today determine whether the fire survives after you're gone.</p>
+      </div>
+      <div class="topic-card" data-animate data-delay="0.1">
+        <div class="tag mb-6">Workshop</div>
+        <h4 class="mb-4">S.Y.S.T.E.M.S. Audit: Fix What's Draining You</h4>
+        <p class="t-body">A hands-on session walking teams through all seven SYSTEMS pillars. Participants leave with a prioritized action plan for the area draining their performance most.</p>
+      </div>
+    </div>
+    <div class="mt-12" data-animate>
+      <a href="services.html#speaking" class="btn btn-primary">Book Jason to Speak</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="border-t">
+  <div class="container text-center" data-animate>
+    <div style="max-width: 520px; margin: 0 auto;">
+      <h2 class="mb-8">The best place to start<br>is the Spark Audit.</h2>
+      <p class="t-lead mb-12">Free. 10 minutes. Real clarity on where your fire stands — and what to do next.</p>
+      <a href="spark-audit.html" class="btn btn-primary btn-lg">Take the Free Audit</a>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script src="js/components.js"></script>
+<script>
+  renderNav('about.html');
+  renderFooter();
+</script>
+</body>
+</html>
