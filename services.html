@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services — The Bonfire Method</title>
+  <meta name="description" content="Coaching, consulting, workshops, and speaking from Jason Rumbough and The Bonfire Method. Built for leaders who are serious about sustainability.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero { padding: 160px 0 80px; border-bottom: 1px solid var(--divider); }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      margin-top: 64px;
+    }
+    .service-card {
+      padding: 52px 44px;
+      border: 1px solid var(--divider);
+      position: relative;
+      transition: border-color 0.25s;
+    }
+    .service-card:hover { border-color: rgba(200,75,31,0.3); }
+    .service-tag { margin-bottom: 24px; }
+    .service-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--bone);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .service-desc { font-size: 16px; font-weight: 300; color: var(--smoke); line-height: 1.8; margin-bottom: 28px; }
+    .service-includes { margin-top: 28px; }
+    .service-includes h5 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-bottom: 14px;
+    }
+    .service-includes ul { list-style: none; }
+    .service-includes li {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--smoke);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .service-includes li::before {
+      content: '→';
+      color: var(--ember);
+      font-size: 12px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .service-includes li:last-child { border-bottom: none; }
+
+    /* Pricing */
+    .pricing-section { background: var(--coal); border-top: 1px solid var(--divider); border-bottom: 1px solid var(--divider); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 56px;
+    }
+    .pricing-card {
+      padding: 48px 36px;
+      background: var(--ash);
+      border: 1px solid var(--divider);
+      position: relative;
+    }
+    .pricing-card.featured {
+      border-color: rgba(200,75,31,0.4);
+      background: rgba(200,75,31,0.05);
+    }
+    .pricing-badge {
+      position: absolute;
+      top: -1px; right: 28px;
+      background: var(--ember);
+      color: var(--warm-white);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+    }
+    .pricing-tier { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ember); margin-bottom: 16px; }
+    .pricing-name { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--bone); margin-bottom: 8px; }
+    .pricing-price { font-family: var(--font-display); font-size: 44px; font-weight: 600; color: var(--bone); line-height: 1; margin-bottom: 4px; }
+    .pricing-period { font-size: 13px; color: var(--smoke); margin-bottom: 28px; }
+    .pricing-desc { font-size: 14px; font-weight: 300; color: var(--smoke); line-height: 1.7; margin-bottom: 28px; }
+    .pricing-features { list-style: none; margin-bottom: 36px; }
+    .pricing-features li {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--smoke);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      gap: 10px;
+    }
+    .pricing-features li::before { content: '✓'; color: var(--ember); font-size: 12px; flex-shrink: 0; }
+    .pricing-features li:last-child { border-bottom: none; }
+
+    /* Speaking */
+    .speaking-section { border-bottom: 1px solid var(--divider); }
+    .speaking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .speaking-topics { margin-top: 40px; }
+    .topic-row {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      gap: 20px;
+    }
+    .topic-row:last-child { border-bottom: none; }
+    .topic-tag-small {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      border: 1px solid var(--ember-dim);
+      padding: 3px 10px;
+      height: fit-content;
+      margin-top: 2px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Contact */
+    .contact-section { background: var(--coal); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+    .contact-form {}
+    .contact-form .form-group { margin-bottom: 20px; }
+    .btn-submit {
+      background: var(--ember);
+      border: 1px solid var(--ember);
+      color: var(--warm-white);
+      padding: 16px 32px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { background: var(--ember-bright); }
+
+    @media (max-width: 900px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .speaking-grid { grid-template-columns: 1fr; gap: 40px; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="container">
+    <div style="max-width: 640px;" data-animate>
+      <div class="t-eyebrow mb-8">Services</div>
+      <h1 class="mb-8">Built for leaders who are <span class="t-display-italic">serious</span> about sustainability.</h1>
+      <p class="t-lead" style="max-width: 500px;">The Bonfire Method isn't a one-day event. It's a system. Every service offering is designed to move the needle — not just inspire the room.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section>
+  <div class="container">
+    <div class="services-grid">
+      <div class="service-card" data-animate>
+        <div class="service-tag"><span class="tag">1:1 Coaching</span></div>
+        <div class="service-title">Executive Coaching</div>
+        <p class="service-desc">Deep, ongoing work with leaders who are ready to get honest about what's draining them — and build the systems that actually fix it. This isn't accountability coaching. It's performance architecture.</p>
+        <div class="service-includes">
+          <h5>What's Included</h5>
+          <ul>
+            <li>Full Spark Audit + SYSTEMS diagnostic in session 1</li>
+            <li>Bi-weekly 60-minute coaching calls</li>
+            <li>Custom action plan built around your specific gaps</li>
+            <li>Direct access between sessions (Voxer/email)</li>
+            <li>Full Bonfire Method workbook and journal system</li>
+          </ul>
+        </div>
+        <div class="mt-8">
+          <a href="#contact" class="btn btn-primary">Inquire About Coaching</a>
+        </div>
+      </div>
+
+      <div class="service-card bg-coal" data-animate data-delay="0.1">
+        <div class="service-tag"><span class="tag">Organization</span></div>
+        <div class="service-title">Consulting & Team Diagnostics</div>
+        <p class="service-desc">Apply the Bonfire Method at the organizational level. Full SYSTEMS audit for leadership teams, custom performance architecture, and a clear roadmap to second-generation sustainability. Built for founders, VPs, and senior leadership teams.</p>
+        <div class="service-includes">
+          <h5>What's Included</h5>
+          <ul>
+            <li>Full organizational SYSTEMS audit (all 7 pillars)</li>
+            <li>Leadership team workshop (half or full day)</li>
+            <li>Prioritized gap analysis and 90-day action plan</li>
+            <li>Custom performance architecture framework</li>
+            <li>Ongoing advisory access (quarterly check-ins)</li>
+          </ul>
+        </div>
+        <div class="mt-8">
+          <a href="#contact" class="btn btn-primary">Inquire About Consulting</a>
+        </div>
+      </div>
+
+      <div class="service-card" data-animate>
+        <div class="service-tag"><span class="tag">Group</span></div>
+        <div class="service-title">Workshops</div>
+        <p class="service-desc">Hands-on, interactive sessions that go beyond inspiration and land on application. Each workshop is built around a specific Bonfire Method framework and ends with a tangible deliverable every participant takes home.</p>
+        <div class="service-includes">
+          <h5>Available Workshops</h5>
+          <ul>
+            <li>The Spark Audit: Discover Your Purpose (2–3 hours)</li>
+            <li>The SYSTEMS Audit: Fix What's Draining You (half day)</li>
+            <li>Second-Generation Sustainability: Build to Last (full day)</li>
+            <li>The AIR Rhythm: Build Your Leadership OS (2 hours)</li>
+          </ul>
+        </div>
+        <div class="mt-8">
+          <a href="#contact" class="btn btn-primary">Book a Workshop</a>
+        </div>
+      </div>
+
+      <div class="service-card bg-coal" data-animate data-delay="0.1">
+        <div class="service-tag"><span class="tag">Online</span></div>
+        <div class="service-title">Courses & Digital Programs</div>
+        <p class="service-desc">Self-paced access to the Bonfire Method framework. For leaders who want the system on their own timeline — with the same rigor as live coaching, structured for independent study.</p>
+        <div class="service-includes">
+          <h5>Coming 2026</h5>
+          <ul>
+            <li>The Bonfire Method: Full Framework Course</li>
+            <li>The Spark Audit: Deep Dive Program</li>
+            <li>The SYSTEMS Builder: 7-Week Program</li>
+            <li>The AIR Rhythm: 30-Day Leadership Reset</li>
+          </ul>
+        </div>
+        <div class="mt-8">
+          <a href="book.html#waitlist" class="btn btn-outline">Join the Waitlist</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPEAKING -->
+<section class="speaking-section" id="speaking">
+  <div class="container">
+    <div class="speaking-grid">
+      <div data-animate>
+        <div class="t-eyebrow mb-8">Speaking</div>
+        <h2 class="mb-8">Jason speaks on the topics leaders won't say out loud.</h2>
+        <p class="t-body mb-6">Leadership burnout. Organizational sustainability. What it actually takes to build fires that last. Audiences leave with a framework — not just inspiration.</p>
+        <p class="t-body mb-12">Featured in corporate leadership summits, pastoral conferences, nonprofit retreats, and entrepreneurship events. Available for keynotes, breakout sessions, and full-day workshops.</p>
+        <a href="#contact" class="btn btn-primary">Book Jason to Speak</a>
+      </div>
+      <div data-animate data-delay="0.15">
+        <div class="h4 mb-8" style="letter-spacing:0.12em;">Speaking Topics</div>
+        <div class="speaking-topics">
+          <div class="topic-row">
+            <span class="topic-tag-small">Keynote</span>
+            <div>
+              <div class="h4" style="font-size:14px; margin-bottom:4px;">The Bonfire Method: Build a Fire That Lasts</div>
+              <div class="t-small">The flagship talk. Passion isn't the problem — systems are. 45–60 min.</div>
+            </div>
+          </div>
+          <div class="topic-row">
+            <span class="topic-tag-small">Workshop</span>
+            <div>
+              <div class="h4" style="font-size:14px; margin-bottom:4px;">The Spark Audit: Discover Your Purpose</div>
+              <div class="t-small">Live audit walkthrough. Everyone leaves with a Spark Statement. 2–3 hrs.</div>
+            </div>
+          </div>
+          <div class="topic-row">
+            <span class="topic-tag-small">Keynote</span>
+            <div>
+              <div class="h4" style="font-size:14px; margin-bottom:4px;">Second-Generation Sustainability</div>
+              <div class="t-small">For founders and senior leaders. Building to last beyond the builder. 45 min.</div>
+            </div>
+          </div>
+          <div class="topic-row">
+            <span class="topic-tag-small">Workshop</span>
+            <div>
+              <div class="h4" style="font-size:14px; margin-bottom:4px;">S.Y.S.T.E.M.S. Audit: Fix What's Draining You</div>
+              <div class="t-small">Hands-on team session. Prioritized action plan for every attendee. Half day.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT FORM -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div data-animate>
+        <div class="t-eyebrow mb-8">Get in Touch</div>
+        <h2 class="mb-8">Let's figure out<br>what you actually need.</h2>
+        <p class="t-body mb-6">Not sure which service fits? That's fine — tell me where you are and what's not working. We'll figure out the right fit together.</p>
+        <div class="mt-12">
+          <div class="credential-block" style="padding:20px 0;border-bottom:1px solid var(--divider);">
+            <div class="cred-label" style="font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--stone);margin-bottom:6px;">Email</div>
+            <div style="font-size:15px;font-weight:300;color:var(--smoke);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f892998b9796b88c909d9a97969e918a9d959d8c90979cd69b9795">[email&#160;protected]</a></div>
+          </div>
+          <div style="padding:20px 0;">
+            <div style="font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--stone);margin-bottom:6px;">Response Time</div>
+            <div style="font-size:15px;font-weight:300;color:var(--smoke);">Within 48 business hours</div>
+          </div>
+        </div>
+      </div>
+      <div data-animate data-delay="0.15">
+        <div class="contact-form">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-input" id="contact-name" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="contact-email" placeholder="Your email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">I'm interested in...</label>
+            <select class="form-select" id="contact-service">
+              <option value="">Select a service</option>
+              <option>Executive Coaching</option>
+              <option>Organizational Consulting</option>
+              <option>Workshop</option>
+              <option>Speaking</option>
+              <option>Not sure yet — I need help figuring it out</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tell me where you are</label>
+            <textarea class="form-textarea" id="contact-message" placeholder="What's the situation? What's not working? What are you trying to build?"></textarea>
+          </div>
+          <button class="btn-submit" onclick="submitContact()">Send →</button>
+          <div id="contact-success" style="display:none;margin-top:16px;padding:16px;border:1px solid var(--ember-dim);background:rgba(200,75,31,0.08);font-size:14px;color:var(--bone);">
+            ✓ Message received. I'll be in touch within 48 hours.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="js/components.js"></script>
+<script>
+  renderNav('services.html');
+  renderFooter();
+
+  function submitContact() {
+    const name = document.getElementById('contact-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const msg = document.getElementById('contact-message').value.trim();
+    if (!email || !email.includes('@') || !msg) {
+      alert('Please fill in your email and message.');
+      return;
+    }    // Wire to Netlify Forms or Formspree in production
+    document.getElementById('contact-success').style.display = 'block';
+    document.querySelector('.contact-form button').style.display = 'none';
+  }
+</script>
+</body>
+</html>
